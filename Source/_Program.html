@@ -1,0 +1,121 @@
+<html>
+<body>
+
+<div id="divMain">
+
+<!-- ui begins -->
+
+<div>
+
+<label><b>Desktop Publisher</b></label><br />
+<p>Enter a document as JSON and click the buttons to display or export it.</p>
+<label>Document as JSON:</label><br />
+<textarea id="textareaDocumentAsJSON" cols="80" rows="32" wrap="off" >
+{
+	"name":"Invictus",
+	"pageSizeInPixels":{"x":300,"y":300},
+	"fonts": [ { "name":"sans-serif", "heightInPixels":10 } ],
+	"pageDefns":
+	[
+		{
+			"name": "PageDefn0",
+			"zoneDefns":
+			[
+				{ "name":"0", "pos":{"x":10,"y":10}, "size":{"x":150,"y":80}, "margin":{"x":20,"y":20}, "pageOffsetNext":0, "zoneNameNext":"1" },
+				{ "name":"1", "pos":{"x":70,"y":110}, "size":{"x":150,"y":80}, "margin":{"x":20,"y":20}, "pageOffsetNext":0,"zoneNameNext":"2" },
+				{ "name":"2", "pos":{"x":130,"y":210}, "size":{"x":150,"y":80}, "margin":{"x":20,"y":20}, "pageOffsetNext":1,"zoneNameNext":"0"  }
+			]
+		}
+	],
+	"contentBlocks": 
+	[
+		{ 
+			"name": "Content0", 
+			"typeName": "text", 
+			"data": "Out of the night which covers me, black as the pit from pole to pole, I thank whatever gods may be for my unconquerable soul.\n\nIn the fell clutch of circumstance, I have not winced nor cried aloud.  Under the bludgeoning of chance, my head is bloody, but unbowed.\n\nBeyond this place of wrath and tears looms but the Horror of the shade, and yet the menace of the years finds, and shall find me, unafraid.\n\nIt matters not how strait the gate, how charged with punishments the scroll, I am the master of my fate: I am the captain of my soul.\n\n-William Ernest Henley"
+		} 
+	],
+	"pages": 
+	[
+		{ "defnName": "PageDefn0" },
+		{ "defnName": "PageDefn0" },
+		{ "defnName": "PageDefn0" }
+	],
+	"contentAssignments": 
+	[
+		{ "contentBlockName":"Content0", "pageIndex":0, "zoneName":"0" }
+	]
+}
+</textarea>
+</div>
+
+<div>
+	<button onclick="buttonRender_Clicked();">Render as Images</button>
+	<button onclick="buttonExport_Clicked();">Export as .PNG.TAR</button>
+</div>
+
+<!-- ui ends -->
+
+</div>
+
+
+<script type="text/javascript">
+
+function buttonRender_Clicked()
+{
+	var documentToDisplay = documentParseAndLayOut();
+	documentToDisplay.draw();
+}
+
+function buttonExport_Clicked()
+{
+	var documentToExport = documentParseAndLayOut();
+	var documentAsTarFile = documentToExport.toTarFile();
+	var documentAsBytes = documentAsTarFile.toBytes();
+	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".tar");
+}
+
+function documentParseAndLayOut()
+{
+	var textareaDocumentAsJSON = document.getElementById
+	(
+		"textareaDocumentAsJSON"
+	);
+	var documentAsStringJSON = textareaDocumentAsJSON.value;
+	
+	var documentAsDeserializedObject = JSON.parse(documentAsStringJSON);
+
+	var documentParsed = Document.fromDeserializedObject
+	(
+		documentAsDeserializedObject
+	);
+
+	documentParsed.initialize();
+	documentParsed.update();
+
+	return documentParsed;
+}
+
+</script>
+
+<script type="text/javascript" src="ArrayExtensions.js"></script>
+<script type="text/javascript" src="StringExtensions.js"></script>
+<script type="text/javascript" src="ContentAssignment.js"></script>
+<script type="text/javascript" src="ContentBlock.js"></script>
+<script type="text/javascript" src="ContentType.js"></script>
+<script type="text/javascript" src="Coords.js"></script>
+<script type="text/javascript" src="Display.js"></script>
+<script type="text/javascript" src="Document.js"></script>
+<script type="text/javascript" src="Font.js"></script>
+<script type="text/javascript" src="Page.js"></script>
+<script type="text/javascript" src="PageDefn.js"></script>
+<script type="text/javascript" src="Zone.js"></script>
+<script type="text/javascript" src="ZoneDefn.js"></script>
+<script type="text/javascript" src="ByteHelper.js"></script>
+<script type="text/javascript" src="ByteStream.js"></script>
+<script type="text/javascript" src="FileHelper.js"></script>
+<script type="text/javascript" src="TarFile.js"></script>
+<script type="text/javascript" src="TarFileEntry.js"></script>
+<script type="text/javascript" src="TarFileEntryHeade.js"></script>
+<script type="text/javascript" src="TarFileTypeFlag.js"></script>
+
