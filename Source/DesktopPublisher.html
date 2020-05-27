@@ -13,7 +13,7 @@
 <textarea id="textareaDocumentAsJSON" cols="80" rows="32" wrap="off" >
 {
 	"name":"Invictus",
-	"pageSizeInPixels":{"x":300,"y":300},
+	"pageSizeInPixels":{"x":255,"y":330},
 	"fonts": [ { "name":"sans-serif", "heightInPixels":10 } ],
 	"pageDefns":
 	[
@@ -21,18 +21,46 @@
 			"name": "PageDefn0",
 			"zoneDefns":
 			[
-				{ "name":"0", "pos":{"x":10,"y":10}, "size":{"x":150,"y":80}, "margin":{"x":20,"y":20}, "pageOffsetNext":0, "zoneNameNext":"1" },
-				{ "name":"1", "pos":{"x":70,"y":110}, "size":{"x":150,"y":80}, "margin":{"x":20,"y":20}, "pageOffsetNext":0,"zoneNameNext":"2" },
-				{ "name":"2", "pos":{"x":130,"y":210}, "size":{"x":150,"y":80}, "margin":{"x":20,"y":20}, "pageOffsetNext":1,"zoneNameNext":"0"  }
+				{
+					"name":"0",
+					"pos":{"x":10,"y":10},
+					"size":{"x":150,"y":80},
+					"margin":{"x":20,"y":20},
+					"pageOffsetNext":0,
+					"zoneNameNext":"1"
+				},
+				{
+					"name":"1",
+					"pos":{"x":50,"y":110},
+					"size":{"x":150,"y":80},
+					"margin":{"x":20,"y":20},
+					"pageOffsetNext":0,
+					"zoneNameNext":"2"
+				},
+				{
+					"name":"2",
+					"pos":{"x":90,"y":210},
+					"size":{"x":150,"y":80},
+					"margin":{"x":20,"y":20},
+					"pageOffsetNext":1,
+					"zoneNameNext":"0"
+				}
 			]
+		}
+	],
+	"textFiles":
+	[
+		{
+			"name": "Invictus",
+			"sourcePath": "../Content/Invictus.txt"
 		}
 	],
 	"contentBlocks": 
 	[
 		{ 
 			"name": "Content0", 
-			"typeName": "text", 
-			"data": "Out of the night which covers me, black as the pit from pole to pole, I thank whatever gods may be for my unconquerable soul.\n\nIn the fell clutch of circumstance, I have not winced nor cried aloud.  Under the bludgeoning of chance, my head is bloody, but unbowed.\n\nBeyond this place of wrath and tears looms but the Horror of the shade, and yet the menace of the years finds, and shall find me, unafraid.\n\nIt matters not how strait the gate, how charged with punishments the scroll, I am the master of my fate: I am the captain of my soul.\n\n-William Ernest Henley"
+			"typeName": "TextFile", 
+			"data": "Invictus"
 		} 
 	],
 	"pages": 
@@ -43,7 +71,11 @@
 	],
 	"contentAssignments": 
 	[
-		{ "contentBlockName":"Content0", "pageIndex":0, "zoneName":"0" }
+		{
+			"contentBlockName":"Content0",
+			"pageIndex":0,
+			"zoneName":"0"
+		}
 	]
 }
 </textarea>
@@ -54,6 +86,8 @@
 	<button onclick="buttonExport_Clicked();">Export as .PNG.TAR</button>
 </div>
 
+<div id="divOutput" />
+
 <!-- ui ends -->
 
 </div>
@@ -63,8 +97,19 @@
 
 function buttonRender_Clicked()
 {
-	var documentToDisplay = documentParseAndLayOut();
-	documentToDisplay.draw();
+	var textareaDocumentAsJSON = document.getElementById
+	(
+		"textareaDocumentAsJSON"
+	);
+	var documentAsJson = textareaDocumentAsJSON.value;
+	var documentToDisplay = Document.deserialize(documentAsJson);
+	documentToDisplay.initialize(buttonRender_Clicked_DocumentInitialized);
+}
+
+function buttonRender_Clicked_DocumentInitialized(document)
+{
+	document.update();
+	document.draw();
 }
 
 function buttonExport_Clicked()
@@ -75,31 +120,11 @@ function buttonExport_Clicked()
 	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".tar");
 }
 
-function documentParseAndLayOut()
-{
-	var textareaDocumentAsJSON = document.getElementById
-	(
-		"textareaDocumentAsJSON"
-	);
-	var documentAsStringJSON = textareaDocumentAsJSON.value;
-	
-	var documentAsDeserializedObject = JSON.parse(documentAsStringJSON);
-
-	var documentParsed = Document.fromDeserializedObject
-	(
-		documentAsDeserializedObject
-	);
-
-	documentParsed.initialize();
-	documentParsed.update();
-
-	return documentParsed;
-}
-
 </script>
 
-<script type="text/javascript" src="ArrayExtensions.js"></script>
-<script type="text/javascript" src="StringExtensions.js"></script>
+<script type="text/javascript" src="Extensions/ArrayExtensions.js"></script>
+<script type="text/javascript" src="Extensions/StringExtensions.js"></script>
+
 <script type="text/javascript" src="ContentAssignment.js"></script>
 <script type="text/javascript" src="ContentBlock.js"></script>
 <script type="text/javascript" src="ContentType.js"></script>
@@ -114,8 +139,10 @@ function documentParseAndLayOut()
 <script type="text/javascript" src="ByteHelper.js"></script>
 <script type="text/javascript" src="ByteStream.js"></script>
 <script type="text/javascript" src="FileHelper.js"></script>
-<script type="text/javascript" src="TarFile.js"></script>
-<script type="text/javascript" src="TarFileEntry.js"></script>
-<script type="text/javascript" src="TarFileEntryHeade.js"></script>
-<script type="text/javascript" src="TarFileTypeFlag.js"></script>
+<script type="text/javascript" src="TextStringFromFile.js"></script>
+
+<script type="text/javascript" src="Tar/TarFile.js"></script>
+<script type="text/javascript" src="Tar/TarFileEntry.js"></script>
+<script type="text/javascript" src="Tar/TarFileEntryHeade.js"></script>
+<script type="text/javascript" src="Tar/TarFileTypeFlag.js"></script>
 

@@ -5,26 +5,26 @@ function Zone(defnName)
 }
 
 {
-	Zone.prototype.content = function(document, page)
+	Zone.prototype.content = function(document)
 	{
 		if (this._content == null)
 		{
 			var contentBlock = document.contentBlocks[this.contentBlockName];
 			if (contentBlock != null)
 			{
-				this._content = contentBlock.data;
+				this._content = contentBlock.content(document);
 			}
 		}
-		
+
 		return this._content;
-	}
+	};
 
 	Zone.prototype.defn = function(document, page)
 	{
 		var pageDefn = page.defn(document);
 		var returnValue = pageDefn.zoneDefns[this.defnName];
 		return returnValue;
-	}
+	};
 
 	Zone.prototype.update = function(document, page)
 	{
@@ -119,7 +119,7 @@ function Zone(defnName)
 		contentAsLines.push(lineCurrent);
 
 		this.contentAsLines = contentAsLines;
-	}
+	};
 
 	// drawable
 
@@ -136,7 +136,7 @@ function Zone(defnName)
 		var zoneMargin = zoneDefn.margin;
 		var zoneSizeMinusMargin = zoneDefn.sizeMinusMargin;
 
-		display.drawRectangle(zonePos, zoneSize, "White", "LightGray");
+		display.drawRectangle(zonePos, zoneSize, zoneDefn.colorBack, zoneDefn.colorBorder);
 
 		var contentAsLines = zone.contentAsLines;
 
@@ -205,7 +205,7 @@ function Zone(defnName)
 				}
 			}
 		}
-	}
+	};
 
 	// serialzable
 
@@ -217,5 +217,5 @@ function Zone(defnName)
 		);
 
 		return returnValue;
-	}
+	};
 }

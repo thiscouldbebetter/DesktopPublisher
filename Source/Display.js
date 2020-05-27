@@ -12,7 +12,7 @@ function Display(sizeInPixels, renderToScreen)
 	{
 		this.drawRectangle
 		(
-			new Coords(0, 0), this.sizeInPixels, "White", "Gray"
+			new Coords(0, 0), this.sizeInPixels, "White", null
 		);
 	}
 
@@ -25,13 +25,15 @@ function Display(sizeInPixels, renderToScreen)
 	Display.prototype.initialize = function()
 	{
 		this.canvas = document.createElement("canvas");
+		this.canvas.style = "border:1px solid";
 		this.canvas.width = this.sizeInPixels.x;
 		this.canvas.height = this.sizeInPixels.y;
 		this.graphics = this.canvas.getContext("2d");
 
-		if (this.renderToScreen == true)
+		if (this.renderToScreen)
 		{
-			document.getElementById("divMain").appendChild(this.canvas);
+			var divOutput = document.getElementById("divOutput");
+			divOutput.appendChild(this.canvas);
 		}
 	}
 

@@ -1,5 +1,5 @@
 
-function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontName)
+function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontName, colorBack, colorBorder)
 {
 	this.name = name;
 	this.pos = pos;
@@ -8,6 +8,8 @@ function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNam
 	this.zoneNameNext = zoneNameNext;
 	this.pageOffsetNext = pageOffsetNext;
 	this.fontName = fontName;
+	this.colorBack = colorBack;
+	this.colorBorder = colorBorder;
 
 	this.zoneNamePrev = null;
 

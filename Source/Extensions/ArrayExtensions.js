@@ -18,5 +18,5 @@ function ArrayExtensions()
 		}
 	
 		return this;
-	}
+	};
 }

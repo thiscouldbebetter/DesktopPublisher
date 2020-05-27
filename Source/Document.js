@@ -1,17 +1,28 @@
 
-function Document(name, pageSizeInPixels, fonts, pageDefns, contentBlocks, pages, contentAssignments)
+function Document
+(
+	name,
+	pageSizeInPixels,
+	fonts,
+	pageDefns,
+	textFiles,
+	contentBlocks,
+	pages,
+	contentAssignments
+)
 {
 	this.name = name;
 	this.pageSizeInPixels = pageSizeInPixels;
 	this.fonts = fonts.addLookups("name");
 	this.pageDefns = pageDefns.addLookups("name");
+	this.textFiles = textFiles.addLookups("name");
 	this.contentBlocks = contentBlocks.addLookups("name");
 	this.pages = pages;
 	this.contentAssignments = contentAssignments;
 }
 
 {
-	Document.prototype.initialize = function()
+	Document.prototype.initialize = function(callback)
 	{
 		var pages = this.pages;
 
@@ -19,8 +30,13 @@ function Document(name, pageSizeInPixels, fonts, pageDefns, contentBlocks, pages
 		{
 			var page = pages[i];
 			page.initialize(this);
-		}		
-	}
+		}
+
+		TextStringFromFile.loadMany
+		(
+			this.textFiles, () => callback(this)
+		);
+	};
 
 	Document.prototype.update = function()
 	{
@@ -31,12 +47,15 @@ function Document(name, pageSizeInPixels, fonts, pageDefns, contentBlocks, pages
 			var page = pages[i];
 			page.update(this);
 		}		
-	}
+	};
 
 	// drawable
 
 	Document.prototype.draw = function()
 	{
+		var divOutput = document.getElementById("divOutput");
+		divOutput.innerHTML = "";
+
 		var pages = this.pages;
 
 		for (var i = 0; i < pages.length; i++)
@@ -44,9 +63,15 @@ function Document(name, pageSizeInPixels, fonts, pageDefns, contentBlocks, pages
 			var page = pages[i];
 			page.draw(this);
 		}		
-	}
+	};
 	
 	// serializable
+
+	Document.deserialize = function(documentAsJson)
+	{
+		var documentAsObject = JSON.parse(documentAsJson);
+		return Document.fromDeserializedObject(documentAsObject);
+	};
 
 	Document.fromDeserializedObject = function(documentAsObject)
 	{
@@ -66,44 +91,30 @@ function Document(name, pageSizeInPixels, fonts, pageDefns, contentBlocks, pages
 			fonts.push(font);
 		}
 
-		var pageDefns = [];
-		var pageDefnsAsObjects = documentAsObject.pageDefns;
-		for (var i = 0; i < pageDefnsAsObjects.length; i++)
-		{
-			var pageDefnAsObject = pageDefnsAsObjects[i];
-			var pageDefn = PageDefn.fromDeserializedObject(pageDefnAsObject);
-			pageDefns.push(pageDefn);
-		}
+		var pageDefns = documentAsObject.pageDefns.map
+		(
+			x => PageDefn.fromDeserializedObject(x)
+		); 
 
-		var contentBlocks = [];
-		var contentBlocksAsObjects = documentAsObject.contentBlocks;
-		for (var i = 0; i < contentBlocksAsObjects.length; i++)
-		{
-			var contentBlockAsObject = contentBlocksAsObjects[i];
-			var contentBlock = ContentBlock.fromDeserializedObject
-			(
-				contentBlockAsObject
-			);
-			contentBlocks.push(contentBlock);
-		}
+		var textFiles = documentAsObject.textFiles.map
+		(
+			x => TextStringFromFile.fromDeserializedObject(x)
+		);
 
-		var pages = [];
-		var pagesAsObjects = documentAsObject.pages;
-		for (var i = 0; i < pagesAsObjects.length; i++)
-		{
-			var pageAsObject = pagesAsObjects[i];
-			var page = Page.fromDeserializedObject(pageAsObject);
-			pages.push(page);
-		}
+		var contentBlocks = documentAsObject.contentBlocks.map
+		(
+			x => ContentBlock.fromDeserializedObject(x)
+		);
 
-		var contentAssignments = [];
-		var contentAssignmentsAsObjects = documentAsObject.contentAssignments;
-		for (var i = 0; i < contentAssignmentsAsObjects.length; i++)
-		{
-			var contentAssignmentAsObject = contentAssignmentsAsObjects[i];
-			var contentAssignment = ContentAssignment.fromDeserializedObject(contentAssignmentAsObject);
-			contentAssignments.push(contentAssignment);
-		}
+		var pages = documentAsObject.pages.map
+		(
+			x => Page.fromDeserializedObject(x)
+		);
+
+		var contentAssignments = documentAsObject.contentAssignments.map
+		(
+			x => ContentAssignment.fromDeserializedObject(x)
+		);
 
 		var returnValue = new Document
 		(
@@ -111,13 +122,14 @@ function Document(name, pageSizeInPixels, fonts, pageDefns, contentBlocks, pages
 			pageSizeInPixels,
 			fonts,
 			pageDefns,
+			textFiles,
 			contentBlocks,
 			pages,
 			contentAssignments
 		);
 
 		return returnValue;
-	}
+	};
 
 	// tar
 
@@ -141,6 +153,5 @@ function Document(name, pageSizeInPixels, fonts, pageDefns, contentBlocks, pages
 		}
 
 		return returnValue;
-	}
-
+	};
 }

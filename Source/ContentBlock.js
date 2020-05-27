@@ -15,5 +15,15 @@ function ContentBlock(name, typeName, data)
 			contentBlockAsObject.typeName,
 			contentBlockAsObject.data
 		);
-	}
+	};
+
+	ContentBlock.prototype.content = function(document)
+	{
+		return this.type().contentFromData(document, this.data);
+	};
+
+	ContentBlock.prototype.type = function()
+	{
+		return ContentType.Instances()[this.typeName];
+	};
 }
