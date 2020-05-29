@@ -1,7 +1,8 @@
-function TextStringFromFile(name, sourcePath)
+function TextStringFromFile(name, sourcePath, text)
 {
 	this.name = name;
 	this.sourcePath = sourcePath;
+	this.text = text;
 }
 {
 	TextStringFromFile.fromDeserializedObject = function(textStringAsObject)
@@ -9,7 +10,8 @@ function TextStringFromFile(name, sourcePath)
 		return new TextStringFromFile
 		(
 			textStringAsObject.name,
-			textStringAsObject.sourcePath
+			textStringAsObject.sourcePath,
+			textStringAsObject.text
 		);
 	};
 
@@ -25,7 +27,10 @@ function TextStringFromFile(name, sourcePath)
 		(
 			function()
 			{
-				var areAnyTextStringsNotLoaded = textStrings.some(x => x.text == null);
+				var areAnyTextStringsNotLoaded = textStrings.some
+				(
+					x => x.text == null
+				);
 				if (areAnyTextStringsNotLoaded == false)
 				{
 					clearInterval(timer);

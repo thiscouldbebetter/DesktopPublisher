@@ -8,82 +8,35 @@
 <div>
 
 <label><b>Desktop Publisher</b></label><br />
-<p>Enter a document as JSON and click the buttons to display or export it.</p>
-<label>Document as JSON:</label><br />
-<textarea id="textareaDocumentAsJSON" cols="80" rows="32" wrap="off" >
-{
-	"name":"Invictus",
-	"pageSizeInPixels":{"x":255,"y":330},
-	"fonts": [ { "name":"sans-serif", "heightInPixels":10 } ],
-	"pageDefns":
-	[
-		{
-			"name": "PageDefn0",
-			"zoneDefns":
-			[
-				{
-					"name":"0",
-					"pos":{"x":10,"y":10},
-					"size":{"x":150,"y":80},
-					"margin":{"x":20,"y":20},
-					"pageOffsetNext":0,
-					"zoneNameNext":"1"
-				},
-				{
-					"name":"1",
-					"pos":{"x":50,"y":110},
-					"size":{"x":150,"y":80},
-					"margin":{"x":20,"y":20},
-					"pageOffsetNext":0,
-					"zoneNameNext":"2"
-				},
-				{
-					"name":"2",
-					"pos":{"x":90,"y":210},
-					"size":{"x":150,"y":80},
-					"margin":{"x":20,"y":20},
-					"pageOffsetNext":1,
-					"zoneNameNext":"0"
-				}
-			]
-		}
-	],
-	"textFiles":
-	[
-		{
-			"name": "Invictus",
-			"sourcePath": "../Content/Invictus.txt"
-		}
-	],
-	"contentBlocks": 
-	[
-		{ 
-			"name": "Content0", 
-			"typeName": "TextFile", 
-			"data": "Invictus"
-		} 
-	],
-	"pages": 
-	[
-		{ "defnName": "PageDefn0" },
-		{ "defnName": "PageDefn0" },
-		{ "defnName": "PageDefn0" }
-	],
-	"contentAssignments": 
-	[
-		{
-			"contentBlockName":"Content0",
-			"pageIndex":0,
-			"zoneName":"0"
-		}
-	]
-}
-</textarea>
+<p>Enter a document as JSON, upload any content files, and click the buttons to display the document's pages or to export them as a .tar file.</p>
+
+<label>Document:</label><br />
+
+<button onclick="buttonLoadDemoDocument_Clicked();">Load Demo Document</button>
+<br />
+
+<label>Load Document from .doc.tar:</label>
+<input type="file" onchange="inputDocumentFileToLoad_Changed(this);" />
+<br />
+
+<button onclick="buttonSaveDocument_Clicked();">Save Document as .doc.tar</button>
+<br />
+
+<label>Content Files:</label>
+<br />
+<select id="selectContentFiles" size="4" readonly="true"></select>
+<br />
+<label>Upload New:</label>
+<input type="file" onchange="inputContentFileToUpload_Changed(this);" />
+<br />
+
+<label>Document Layout as JSON:</label><br />
+<textarea id="textareaLayoutAsJson" cols="80" rows="16" wrap="off" ></textarea>
 </div>
 
 <div>
 	<button onclick="buttonRender_Clicked();">Render as Images</button>
-	<button onclick="buttonExport_Clicked();">Export as .PNG.TAR</button>
+	<button onclick="buttonExport_Clicked();">Export as .png.tar</button>
 </div>
 
 <div id="divOutput" />
@@ -95,21 +48,48 @@
 
 <script type="text/javascript">
 
-function buttonRender_Clicked()
+function buttonLoadDemoDocument_Clicked()
 {
-	var textareaDocumentAsJSON = document.getElementById
+	var documentNew = Document.demo();
+
+	var documentNewAsJson = JSON.stringify(documentNew, null, 4);
+	var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
+	textareaLayoutAsJson.value = documentNewAsJson;
+
+	var contentFiles = documentNew.textFiles;
+	var contentFilesAsSelectOptions = contentFiles.map
 	(
-		"textareaDocumentAsJSON"
+		x =>
+		{
+			var returnValue = document.createElement("option")
+			returnValue.value = x.name;
+			returnValue.innerHTML = x.name;
+			return returnValue;
+		}
 	);
-	var documentAsJson = textareaDocumentAsJSON.value;
-	var documentToDisplay = Document.deserialize(documentAsJson);
-	documentToDisplay.initialize(buttonRender_Clicked_DocumentInitialized);
+	var selectContentFiles = document.getElementById("selectContentFiles");
+	selectContentFiles.innerHTML = "";
+	contentFilesAsSelectOptions.forEach(x => selectContentFiles.appendChild(x));
 }
 
-function buttonRender_Clicked_DocumentInitialized(document)
+function buttonRender_Clicked()
 {
-	document.update();
-	document.draw();
+	var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
+	var layoutAsJson = textareaLayoutAsJson.value;
+
+	var selectContentFiles = document.getElementById("selectContentFiles");
+	var contentFilesAsOptions = selectContentFiles.options;
+	var contentFiles = [];
+	for (var i = 0; i < contentFilesAsOptions.length; i++)
+	{
+		var contentFileAsOption = contentFilesAsOptions[i];
+		var contentFile = contentFileAsOption.value; // todo - Value must be a string?
+		contentFiles.push(contentFile);
+	}
+	var documentToDisplay = Document.fromLayoutJsonAndContentFiles(layoutAsJson, contentFiles);
+	documentToDisplay.initialize();
+	documentToDisplay.update();
+	documentToDisplay.draw();
 }
 
 function buttonExport_Clicked()
@@ -117,7 +97,83 @@ function buttonExport_Clicked()
 	var documentToExport = documentParseAndLayOut();
 	var documentAsTarFile = documentToExport.toTarFile();
 	var documentAsBytes = documentAsTarFile.toBytes();
-	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".tar");
+	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + "png.tar");
+}
+
+function buttonSaveDocument_Clicked()
+{
+	var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
+	var layoutAsJson = textareaLayoutAsJson.value;
+	var layoutAsTarFileEntry = TarFileEntry.fromString("Layout.json.txt", layoutAsJson);
+	var contentFiles = [];
+	for (var i = 0; i < contentFilesAsOptions.length; i++)
+	{
+		var contentFileAsOption = contentFilesAsOptions[i];
+		var contentFile = contentFileAsOption.value; // todo - Value must be a string?
+		contentFiles.push(contentFile);
+	}
+	var contentFilesAsTarFileEntries = contentFiles.map
+	(
+		x => TarFileEntry.fromString(x.name, x.text)
+	);
+	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".doc.tar");
+}
+
+function inputContentFileToUpload_Changed(inputContentFileToUpload)
+{
+	var fileToLoad = inputContentFileToUpload.files[0];
+	if (fileToLoad != null)
+	{
+		FileHelper.loadFileAsBytes
+		(
+			fileToLoad,
+			fileAsBytes =>
+			{
+				var fileContentAsString = ByteHelper.bytesToStringUTF8(fileAsBytes);
+				var fileAsTextString = new TextStringFromFile
+				(
+					fileToLoad.name,
+					fileToLoad.name, // sourcePath
+					fileContentAsString
+				);
+				var fileAsSelectOption = document.createElement("option");
+				fileAsSelectOption.value = fileAsTextString.text;
+				fileAsSelectOption.innerHTML = fileAsTextString.name;
+				var selectContentFiles = document.getElementById("selectContentFiles");
+				selectContentFiles.appendChild(fileAsSelectOption);
+			}
+		);
+	}
+}
+
+function inputDocumentFileToLoad_Changed(inputDocumentFileToLoad)
+{
+	var fileToLoad = inputDocumentFileToLoad.files[0];
+	if (fileToLoad != null)
+	{
+		FileHelper.loadFileAsBytes
+		(
+			fileToLoad,
+			fileAsBytes =>
+			{
+				var documentAsTarFile = TarFile.fromBytes(fileAsBytes);
+
+				var layoutAsTarFileEntry = documentAsTarFile.entries["Layout.json.txt"];
+				var layoutAsBytes = layoutAsTarFileEntry.dataAsBytes;
+				var layoutAsJson = ByteHelper.bytesToStringUTF8(layoutAsBytes);
+				var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
+				textareaLayoutAsJson.value = layoutAsJson;
+
+				var selectContentFiles = document.getElementById("selectContentFiles");
+				var contentFilesAsTarFileEntries = documentAsTarFile.entries.slice(0);
+				var contentFilesAsTextStringsFromFiles = contentFilesAsTarFileEntries.map
+				(
+					x => new TextStringFromFile(x.name, ByteHelper.bytesToStringUTF8(x.dataAsBytes) )
+				);
+				selectContentFiles.appendChild();
+			}
+		);
+	}
 }
 
 </script>

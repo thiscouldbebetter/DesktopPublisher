@@ -15,7 +15,7 @@ function ContentAssignment(contentBlockName, pageIndex, zoneDefnName)
 		(
 			contentAssignmentAsObject.contentBlockName,
 			contentAssignmentAsObject.pageIndex,
-			contentAssignmentAsObject.zoneName
+			contentAssignmentAsObject.zoneDefnName
 		);
 	}
 }

@@ -22,7 +22,90 @@ function Document
 }
 
 {
-	Document.prototype.initialize = function(callback)
+	Document.demo = function()
+	{
+		return new Document
+		(
+			"Invictus", // name
+			new Coords(255, 330), // pageSizeInPixels
+			// fonts
+			[
+				new Font("sans-serif", 10)
+			],
+			// pageDefns
+			[
+				new PageDefn
+				(
+					"PageDefn0",
+					// zoneDefns"
+					[
+						new ZoneDefn
+						(
+							"0", // name
+							new Coords(10, 10), // pos
+							new Coords(150, 80), // size
+							new Coords(20, 20), // margin
+							0, // pageOffsetNext
+							"1" // zoneNameNext
+						),
+						new ZoneDefn
+						(
+							"1",
+							new Coords(50, 110),
+							new Coords(150, 80),
+							new Coords(20, 20),
+							0,
+							"2"
+						),
+						new ZoneDefn
+						(
+							"2",
+							new Coords(90, 210),
+							new Coords(150, 80),
+							new Coords(20, 20),
+							1,
+							"0"
+						)
+					]
+				) // end new PageDefn
+			],
+			// textFiles
+			[
+				new TextStringFromFile
+				(
+					"Invictus.txt",
+					"Invictus.txt",
+					"Out of the night which covers me, black as the pit from pole to pole, I thank whatever gods may be for my unconquerable soul.\n\nIn the fell clutch of circumstance, I have not winced nor cried aloud.  Under the bludgeoning of chance, my head is bloody, but unbowed.\n\nBeyond this place of wrath and tears looms but the Horror of the shade, and yet the menace of the years finds, and shall find me, unafraid.\n\nIt matters not how strait the gate, how charged with punishments the scroll, I am the master of my fate: I am the captain of my soul.\n\n-William Ernest Henley"
+				)
+			],
+			// contentBlocks
+			[
+				new ContentBlock
+				(
+					"Content0",
+					"TextFile", // typeName
+					"Invictus.txt" // data
+				)
+			],
+			// pages
+			[
+				new Page("PageDefn0"),
+				new Page("PageDefn0"),
+				new Page("PageDefn0")
+			],
+			// contentAssignments
+			[
+				new ContentAssignment
+				(
+					"Content0", // contentBlockName
+					0, // pageIndex
+					"0" // zoneName":"0"
+				)
+			]
+		);
+	};
+
+	Document.prototype.initialize = function()
 	{
 		var pages = this.pages;
 
@@ -32,10 +115,7 @@ function Document
 			page.initialize(this);
 		}
 
-		TextStringFromFile.loadMany
-		(
-			this.textFiles, () => callback(this)
-		);
+		//TextStringFromFile.loadMany(this.textFiles, () => callback(this));
 	};
 
 	Document.prototype.update = function()
@@ -62,28 +142,24 @@ function Document
 		{
 			var page = pages[i];
 			page.draw(this);
-		}		
+		}
 	};
-	
+
 	// serializable
 
-	Document.deserialize = function(documentAsJson)
+	Document.fromLayoutJsonAndContentFiles = function(layoutAsJson, contentFiles)
 	{
-		var documentAsObject = JSON.parse(documentAsJson);
-		return Document.fromDeserializedObject(documentAsObject);
-	};
+		var layoutAsObject = JSON.parse(layoutAsJson);
 
-	Document.fromDeserializedObject = function(documentAsObject)
-	{
-		var name = documentAsObject.name;
+		var name = layoutAsObject.name;
 
 		var pageSizeInPixels = Coords.fromDeserializedObject
 		(
-			documentAsObject.pageSizeInPixels
+			layoutAsObject.pageSizeInPixels
 		);
 
 		var fonts = [];
-		var fontsAsObjects = documentAsObject.fonts;
+		var fontsAsObjects = layoutAsObject.fonts;
 		for (var i = 0; i < fontsAsObjects.length; i++)
 		{
 			var fontAsObject = fontsAsObjects[i];
@@ -91,29 +167,29 @@ function Document
 			fonts.push(font);
 		}
 
-		var pageDefns = documentAsObject.pageDefns.map
+		var pageDefns = layoutAsObject.pageDefns.map
 		(
 			x => PageDefn.fromDeserializedObject(x)
 		); 
 
-		var textFiles = documentAsObject.textFiles.map
-		(
-			x => TextStringFromFile.fromDeserializedObject(x)
-		);
-
-		var contentBlocks = documentAsObject.contentBlocks.map
+		var contentBlocks = layoutAsObject.contentBlocks.map
 		(
 			x => ContentBlock.fromDeserializedObject(x)
 		);
 
-		var pages = documentAsObject.pages.map
+		var pages = layoutAsObject.pages.map
 		(
 			x => Page.fromDeserializedObject(x)
 		);
 
-		var contentAssignments = documentAsObject.contentAssignments.map
+		var contentAssignments = layoutAsObject.contentAssignments.map
 		(
 			x => ContentAssignment.fromDeserializedObject(x)
+		);
+
+		var textFiles = layoutAsObject.textFiles.map
+		(
+			x => TextStringFromFile.fromDeserializedObject(x)
 		);
 
 		var returnValue = new Document

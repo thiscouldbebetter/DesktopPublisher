@@ -5,8 +5,8 @@ function FileHelper()
 }
 
 {
-    	FileHelper.loadFileAsBytes = function(fileToLoad, callback)
-	{   
+	FileHelper.loadFileAsBytes = function(fileToLoad, callback)
+	{
 		var fileReader = new FileReader();
 		fileReader.onload = function(fileLoadedEvent)
 		{
@@ -18,7 +18,7 @@ function FileHelper()
 		}
  
 		fileReader.readAsBinaryString(fileToLoad);
-	}
+	};
 
 	FileHelper.loadFileAsText = function(fileToLoad, callback)
 	{
@@ -29,7 +29,7 @@ function FileHelper()
 			callback(fileToLoad.name, textFromFileLoaded);
 		};
 		fileReader.readAsText(fileToLoad);
-	}
+	};
  
 	FileHelper.saveBytesAsFile = function(bytesToWrite, fileNameToSaveAs)
 	{
@@ -50,7 +50,7 @@ function FileHelper()
 		downloadLink.download = fileNameToSaveAs;
 		downloadLink.href = window.URL.createObjectURL(bytesToWriteAsBlob);
 		downloadLink.click();
-	}
+	};
 
 	FileHelper.saveTextAsFile = function(textToSave, fileNameToSaveAs)
 	{
@@ -61,5 +61,5 @@ function FileHelper()
 		downloadLink.download = fileNameToSaveAs;
 		downloadLink.href = textToSaveAsURL;
 		downloadLink.click();
-	}
+	};
 }
