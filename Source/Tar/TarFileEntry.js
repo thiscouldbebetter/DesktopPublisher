@@ -9,7 +9,7 @@ function TarFileEntry(header, dataAsBytes)
 	// methods
 	
 	// static methods
-	
+
 	TarFileEntry.directoryNew = function(directoryName)
 	{
 		var header = new TarFileEntryHeader.directoryNew(directoryName);
@@ -17,8 +17,8 @@ function TarFileEntry(header, dataAsBytes)
 		var entry = new TarFileEntry(header, []);
 		
 		return entry;
-	}
-	
+	};
+
 	TarFileEntry.fileNew = function(fileName, fileContentsAsBytes)
 	{
 		var header = new TarFileEntryHeader.fileNew(fileName, fileContentsAsBytes);
@@ -26,8 +26,8 @@ function TarFileEntry(header, dataAsBytes)
 		var entry = new TarFileEntry(header, fileContentsAsBytes);
 		
 		return entry;
-	}
-	
+	};
+
 	TarFileEntry.fromBytes = function(chunkAsBytes, reader)
 	{
 		var chunkSize = TarFile.ChunkSize;
@@ -37,7 +37,7 @@ function TarFileEntry(header, dataAsBytes)
 			chunkAsBytes
 		);
 	
-		var sizeOfDataEntryInBytesUnpadded = header.fileSizeInBytes;	
+		var sizeOfDataEntryInBytesUnpadded = header.fileSizeInBytes;
 
 		var numberOfChunksOccupiedByDataEntry = Math.ceil
 		(
@@ -59,8 +59,8 @@ function TarFileEntry(header, dataAsBytes)
 		var entry = new TarFileEntry(header, dataAsBytes);
 		
 		return entry;
-	}
-	
+	};
+
 	TarFileEntry.manyFromByteArrays = function
 	(
 		fileNamePrefix, fileNameSuffix, entriesAsByteArrays
@@ -81,8 +81,8 @@ function TarFileEntry(header, dataAsBytes)
 		}
 		
 		return returnValues;
-	}
-	
+	};
+
 	// instance methods
 
 	TarFileEntry.prototype.download = function(event)
@@ -92,13 +92,13 @@ function TarFileEntry(header, dataAsBytes)
 			this.dataAsBytes,
 			this.header.fileName
 		);
-	}
-	
+	};
+
 	TarFileEntry.prototype.remove = function(event)
 	{
 		alert("Not yet implemented!"); // todo
-	}
-	
+	};
+
 	TarFileEntry.prototype.toBytes = function()
 	{
 		var entryAsBytes = [];
@@ -128,12 +128,12 @@ function TarFileEntry(header, dataAsBytes)
 		{
 			entryAsBytes.push(0);
 		}
-		
+
 		return entryAsBytes;
-	}	
-		
+	};
+
 	// strings
-	
+
 	TarFileEntry.prototype.toString = function()
 	{
 		var newline = "\n";
@@ -156,5 +156,5 @@ function TarFileEntry(header, dataAsBytes)
 
 		return returnValue
 	}
-	
+
 }

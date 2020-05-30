@@ -22,6 +22,10 @@
 <button onclick="buttonSaveDocument_Clicked();">Save Document as .doc.tar</button>
 <br />
 
+<label>Name:</label>
+<input id="inputDocumentName"></input>
+<br />
+
 <label>Content Files:</label>
 <br />
 <select id="selectContentFiles" size="4" readonly="true"></select>
@@ -35,7 +39,7 @@
 </div>
 
 <div>
-	<button onclick="buttonRender_Clicked();">Render as Images</button>
+	<button onclick="buttonDraw_Clicked();">Render as Images</button>
 	<button onclick="buttonExport_Clicked();">Export as .png.tar</button>
 </div>
 
@@ -50,13 +54,26 @@
 
 function buttonLoadDemoDocument_Clicked()
 {
+	var d = document;
+
 	var documentNew = Document.demo();
+	Session.Instance.document = documentNew;
+	controlsPopulate();
+}
 
-	var documentNewAsJson = JSON.stringify(documentNew, null, 4);
-	var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
-	textareaLayoutAsJson.value = documentNewAsJson;
+function controlsPopulate()
+{
+	var d = document;
+	var documentToPopulateFrom = Session.Instance.document;
 
-	var contentFiles = documentNew.textFiles;
+	var inputDocumentName = d.getElementById("inputDocumentName");
+	inputDocumentName.value = documentToPopulateFrom.name;
+
+	var documentToPopulateFromAsJson = JSON.stringify(documentToPopulateFrom, null, 4);
+	var textareaLayoutAsJson = d.getElementById("textareaLayoutAsJson");
+	textareaLayoutAsJson.value = documentToPopulateFromAsJson;
+
+	var contentFiles = documentToPopulateFrom.textFiles;
 	var contentFilesAsSelectOptions = contentFiles.map
 	(
 		x =>
@@ -67,26 +84,14 @@ function buttonLoadDemoDocument_Clicked()
 			return returnValue;
 		}
 	);
-	var selectContentFiles = document.getElementById("selectContentFiles");
+	var selectContentFiles = d.getElementById("selectContentFiles");
 	selectContentFiles.innerHTML = "";
 	contentFilesAsSelectOptions.forEach(x => selectContentFiles.appendChild(x));
 }
 
-function buttonRender_Clicked()
+function buttonDraw_Clicked()
 {
-	var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
-	var layoutAsJson = textareaLayoutAsJson.value;
-
-	var selectContentFiles = document.getElementById("selectContentFiles");
-	var contentFilesAsOptions = selectContentFiles.options;
-	var contentFiles = [];
-	for (var i = 0; i < contentFilesAsOptions.length; i++)
-	{
-		var contentFileAsOption = contentFilesAsOptions[i];
-		var contentFile = contentFileAsOption.value; // todo - Value must be a string?
-		contentFiles.push(contentFile);
-	}
-	var documentToDisplay = Document.fromLayoutJsonAndContentFiles(layoutAsJson, contentFiles);
+	var documentToDisplay = Session.Instance.document;
 	documentToDisplay.initialize();
 	documentToDisplay.update();
 	documentToDisplay.draw();
@@ -94,40 +99,32 @@ function buttonRender_Clicked()
 
 function buttonExport_Clicked()
 {
-	var documentToExport = documentParseAndLayOut();
-	var documentAsTarFile = documentToExport.toTarFile();
+	var documentToExport = Session.Instance.document;
+	var documentAsTarFile = documentToExport.toTarFile_Png();
 	var documentAsBytes = documentAsTarFile.toBytes();
-	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + "png.tar");
+	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".png.tar");
 }
 
 function buttonSaveDocument_Clicked()
 {
-	var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
-	var layoutAsJson = textareaLayoutAsJson.value;
-	var layoutAsTarFileEntry = TarFileEntry.fromString("Layout.json.txt", layoutAsJson);
-	var contentFiles = [];
-	for (var i = 0; i < contentFilesAsOptions.length; i++)
-	{
-		var contentFileAsOption = contentFilesAsOptions[i];
-		var contentFile = contentFileAsOption.value; // todo - Value must be a string?
-		contentFiles.push(contentFile);
-	}
-	var contentFilesAsTarFileEntries = contentFiles.map
+	var documentToSave = Session.Instance.document;
+	var documentAsTarFile = documentToSave.toTarFile();
+	var documentAsBytes = documentAsTarFile.toBytes();
+	FileHelper.saveBytesAsFile
 	(
-		x => TarFileEntry.fromString(x.name, x.text)
+		documentAsBytes, documentToSave.name + ".doc.tar"
 	);
-	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".doc.tar");
 }
 
 function inputContentFileToUpload_Changed(inputContentFileToUpload)
 {
-	var fileToLoad = inputContentFileToUpload.files[0];
-	if (fileToLoad != null)
+	var contentFileToLoad = inputContentFileToUpload.files[0];
+	if (contentFileToLoad != null)
 	{
 		FileHelper.loadFileAsBytes
 		(
-			fileToLoad,
-			fileAsBytes =>
+			contentFileToLoad,
+			contentFileAsBytes =>
 			{
 				var fileContentAsString = ByteHelper.bytesToStringUTF8(fileAsBytes);
 				var fileAsTextString = new TextStringFromFile
@@ -136,11 +133,8 @@ function inputContentFileToUpload_Changed(inputContentFileToUpload)
 					fileToLoad.name, // sourcePath
 					fileContentAsString
 				);
-				var fileAsSelectOption = document.createElement("option");
-				fileAsSelectOption.value = fileAsTextString.text;
-				fileAsSelectOption.innerHTML = fileAsTextString.name;
-				var selectContentFiles = document.getElementById("selectContentFiles");
-				selectContentFiles.appendChild(fileAsSelectOption);
+				Session.Instance.document.textFiles = fileAsTextString;
+				controlsPopulate();
 			}
 		);
 	}
@@ -154,23 +148,12 @@ function inputDocumentFileToLoad_Changed(inputDocumentFileToLoad)
 		FileHelper.loadFileAsBytes
 		(
 			fileToLoad,
-			fileAsBytes =>
+			(fileName, fileAsBytes) =>
 			{
-				var documentAsTarFile = TarFile.fromBytes(fileAsBytes);
-
-				var layoutAsTarFileEntry = documentAsTarFile.entries["Layout.json.txt"];
-				var layoutAsBytes = layoutAsTarFileEntry.dataAsBytes;
-				var layoutAsJson = ByteHelper.bytesToStringUTF8(layoutAsBytes);
-				var textareaLayoutAsJson = document.getElementById("textareaLayoutAsJson");
-				textareaLayoutAsJson.value = layoutAsJson;
-
-				var selectContentFiles = document.getElementById("selectContentFiles");
-				var contentFilesAsTarFileEntries = documentAsTarFile.entries.slice(0);
-				var contentFilesAsTextStringsFromFiles = contentFilesAsTarFileEntries.map
-				(
-					x => new TextStringFromFile(x.name, ByteHelper.bytesToStringUTF8(x.dataAsBytes) )
-				);
-				selectContentFiles.appendChild();
+				var documentAsTarFile = TarFile.fromBytes(fileName, fileAsBytes);
+				var document = Document.fromTarFile(documentAsTarFile);
+				Session.Instance.document = document;
+				controlsPopulate();
 			}
 		);
 	}
@@ -181,24 +164,27 @@ function inputDocumentFileToLoad_Changed(inputDocumentFileToLoad)
 <script type="text/javascript" src="Extensions/ArrayExtensions.js"></script>
 <script type="text/javascript" src="Extensions/StringExtensions.js"></script>
 
+<script type="text/javascript" src="ByteHelper.js"></script>
+<script type="text/javascript" src="ByteStream.js"></script>
 <script type="text/javascript" src="ContentAssignment.js"></script>
 <script type="text/javascript" src="ContentBlock.js"></script>
 <script type="text/javascript" src="ContentType.js"></script>
 <script type="text/javascript" src="Coords.js"></script>
 <script type="text/javascript" src="Display.js"></script>
 <script type="text/javascript" src="Document.js"></script>
+<script type="text/javascript" src="FileHelper.js"></script>
 <script type="text/javascript" src="Font.js"></script>
 <script type="text/javascript" src="Page.js"></script>
 <script type="text/javascript" src="PageDefn.js"></script>
+<script type="text/javascript" src="Session.js"></script>
+<script type="text/javascript" src="TextStringFromFile.js"></script>
 <script type="text/javascript" src="Zone.js"></script>
 <script type="text/javascript" src="ZoneDefn.js"></script>
-<script type="text/javascript" src="ByteHelper.js"></script>
-<script type="text/javascript" src="ByteStream.js"></script>
-<script type="text/javascript" src="FileHelper.js"></script>
-<script type="text/javascript" src="TextStringFromFile.js"></script>
 
 <script type="text/javascript" src="Tar/TarFile.js"></script>
 <script type="text/javascript" src="Tar/TarFileEntry.js"></script>
-<script type="text/javascript" src="Tar/TarFileEntryHeade.js"></script>
+<script type="text/javascript" src="Tar/TarFileEntryHeader.js"></script>
 <script type="text/javascript" src="Tar/TarFileTypeFlag.js"></script>
 
+</body>
+</html>

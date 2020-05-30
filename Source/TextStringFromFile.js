@@ -15,46 +15,8 @@ function TextStringFromFile(name, sourcePath, text)
 		);
 	};
 
-	TextStringFromFile.loadMany = function(textStrings, callback)
+	TextStringFromFile.prototype.unload = function()
 	{
-		for (var i = 0; i < textStrings.length; i++)
-		{
-			var textString = textStrings[i];
-			textString.load(x => {});
-		}
-
-		var timer = setInterval
-		(
-			function()
-			{
-				var areAnyTextStringsNotLoaded = textStrings.some
-				(
-					x => x.text == null
-				);
-				if (areAnyTextStringsNotLoaded == false)
-				{
-					clearInterval(timer);
-					callback();
-				}
-			},
-			100 // milliseconds
-		)
-	};
-
-	TextStringFromFile.prototype.load = function(callback)
-	{
-		var textStringFromFile = this;
-
-		var xmlHttpRequest = new XMLHttpRequest();
-		xmlHttpRequest.open("GET", this.sourcePath);
-		xmlHttpRequest.onreadystatechange = function(event)
-		{
-			if (xmlHttpRequest.readyState === XMLHttpRequest.DONE)
-			{
-				textStringFromFile.text = xmlHttpRequest.responseText;
-				callback(textStringFromFile);
-			}
-		};
-		xmlHttpRequest.send();
+		delete this.text;
 	};
 }
