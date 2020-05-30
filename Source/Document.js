@@ -24,6 +24,32 @@ function Document
 {
 	Document.demo = function()
 	{
+
+		var textInvictus =
+
+			"Invictus\n"
+			+ "by William Ernest Henley\n\n"
+
+			+ "Out of the night which covers me,"
+			+ " black as the pit from pole to pole,"
+			+ " I thank whatever gods may be"
+			+ " for my unconquerable soul.\n\n"
+			
+			+ "In the fell clutch of circumstance,"
+			+ "I have not winced nor cried aloud."
+			+ "  Under the bludgeoning of chance,"
+			+ " my head is bloody, but unbowed.\n\n"
+			
+			+ "Beyond this place of wrath and tears"
+			+ " looms but the Horror of the shade,"
+			+ " and yet the menace of the years"
+			+ " finds, and shall find me, unafraid.\n\n"
+			
+			+ "It matters not how strait the gate,"
+			+ " how charged with punishments the scroll,"
+			+ " I am the master of my fate:"
+			+ " I am the captain of my soul.\n\n"
+
 		return new Document
 		(
 			"Invictus", // name
@@ -75,7 +101,7 @@ function Document
 				(
 					"Invictus.txt",
 					"Content/Invictus.txt",
-					"Out of the night which covers me, black as the pit from pole to pole, I thank whatever gods may be for my unconquerable soul.\n\nIn the fell clutch of circumstance, I have not winced nor cried aloud.  Under the bludgeoning of chance, my head is bloody, but unbowed.\n\nBeyond this place of wrath and tears looms but the Horror of the shade, and yet the menace of the years finds, and shall find me, unafraid.\n\nIt matters not how strait the gate, how charged with punishments the scroll, I am the master of my fate: I am the captain of my soul.\n\n-William Ernest Henley"
+					textInvictus
 				)
 			],
 			// contentBlocks

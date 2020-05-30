@@ -9,15 +9,15 @@ function Page(defnName, zones)
 	Page.prototype.defn = function(document)
 	{
 		return document.pageDefns[this.defnName];
-	}
+	};
 
 	Page.prototype.initialize = function(document)
 	{
 		this.zonesBuild(document);
-	}
+	};
 
 	Page.prototype.update = function(document)
-	{		
+	{
 		var defn = this.defn(document);
 		var zoneDefns = defn.zoneDefns;
 
@@ -33,7 +33,7 @@ function Page(defnName, zones)
 				var contentBlockName = contentAssignment.contentBlockName;
 				var contentBlock = document.contentBlocks[contentBlockName];
 				var zoneDefnName = contentAssignment.zoneDefnName;
-				var zoneDefn = zoneDefns[zoneDefnName];			
+				var zoneDefn = zoneDefns[zoneDefnName];
 				var zoneIndex = zoneDefns.indexOf(zoneDefn);
 				var zone = this.zones[zoneIndex];
 				zone.contentBlockName = contentBlockName;
@@ -45,7 +45,7 @@ function Page(defnName, zones)
 			var zone = this.zones[i];
 			zone.update(document, this);
 		}
-	}
+	};
 
 	Page.prototype.zonesBuild = function(document)
 	{
@@ -53,20 +53,9 @@ function Page(defnName, zones)
 
 		if (this.zones == null)
 		{
-			var zoneDefns = defn.zoneDefns;
-
-			var zones = [];
-
-			for (var i = 0; i < zoneDefns.length; i++)
-			{
-				var zoneDefn = zoneDefns[i];
-				var zone = new Zone(zoneDefn.name);
-				zones.push(zone);
-			}
-
-			this.zones = zones;
+			this.zones = defn.zoneDefns.map(x => new Zone(x.name));
 		}
-	}
+	};
 
 	// drawable
 
@@ -78,41 +67,20 @@ function Page(defnName, zones)
 
 		this.display.clear();
 
-		var zones = this.zones;
-
-		for (var i = 0; i < zones.length; i++)
-		{
-			var zone = zones[i];
-			zone.draw(document, this);
-		}		
-	}
+		this.zones.forEach(x => x.draw(document, this));
+	};
 
 	// serializable
 
 	Page.fromDeserializedObject = function(pageAsObject)
 	{
-		var zones = null;
-
-		var zonesAsObjects = pageAsObject.zones;
-		if (zonesAsObjects != null)
-		{
-			zones = [];
-
-			for (var i = 0; i < zonesAsObjects.length; i++)
-			{
-				var zoneAsObject = zonesAsObjects[i];
-				var zone = Zone.fromDeserializedObject(zoneAsObject);
-				zones.push(zone);
-			}
-		}
-
 		var returnValue = new Page
 		(
 			pageAsObject.defnName,
-			zones
+			zonesAsObjects.map(x => Zone.fromDeserializedObject(x))
 		);
 
 		return returnValue;
-	}
+	};
 
 }

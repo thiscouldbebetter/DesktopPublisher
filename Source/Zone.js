@@ -184,7 +184,7 @@ function Zone(defnName)
 
 				for (var j = 0; j < contentLine.length; j++)
 				{
-					var contentChar = contentLine[j];			
+					var contentChar = contentLine[j];
 
 					drawPos.overwriteWithXY
 					(
@@ -207,7 +207,7 @@ function Zone(defnName)
 		}
 	};
 
-	// serialzable
+	// serializable
 
 	Zone.fromDeserializedObject = function(zoneAsObject)
 	{
