@@ -29,6 +29,7 @@ function Zone(defnName)
 	Zone.prototype.update = function(document, page)
 	{
 		var zoneDefn = this.defn(document, page);
+		var zoneSize = zoneDefn.sizeMinusMargin;
 
 		var content = this.content(document);
 
@@ -37,7 +38,7 @@ function Zone(defnName)
 			return;
 		}
 
-		var contentAsLines = [];
+		var linesInZone = [];
 
 		// hack
 		var display = new Display(new Coords(0, 0), false);
@@ -50,40 +51,120 @@ function Zone(defnName)
 		}
 		var font = document.fonts[fontName];
 		var fontSizeY = font.heightInPixels;
-		var charOffset = new Coords(0, 0);
 
 		var lineCurrent = "";
+		var lineCurrentWidthSoFar = 0;
+		var zoneCurrentHeightSoFar = 0;
 		var wordCurrent = "";
+
+		var isInBlockQuote = false;
+		var isTextCenteredHorizontally = false;
+		var isTextCenteredVertically = false;
+		var isTextPaddedFromTop = false;
 
 		for (var i = 0; i < content.length; i++)
 		{
 			var contentChar = content[i];
 
-			wordCurrent += contentChar;
-
-			var widthOfContentChar = display.widthOfText
-			(
-				contentChar
-			);
-			charOffset.x += widthOfContentChar;
-
 			if (contentChar == " ")
 			{
-				lineCurrent += wordCurrent;
+				lineCurrent += wordCurrent + " ";
 				wordCurrent = "";
 			}
-			else if (contentChar == "\n")
+			else if (contentChar == "\n") // newline
 			{
 				lineCurrent += wordCurrent + "\n";
+				if (isTextCenteredHorizontally)
+				{
+					lineCurrent = this.lineCenter(lineCurrent, zoneDefn, display);
+				}
 				wordCurrent = "";
-				charOffset.x = zoneDefn.sizeMinusMargin.x;
+				lineCurrentWidthSoFar = zoneSize.x;
+			}
+			else if (contentChar == "\f") // formfeed
+			{
+				lineCurrent += wordCurrent + "\n";
+				if (isTextCenteredHorizontally)
+				{
+					lineCurrent = this.lineCenter(lineCurrent, zoneDefn, display);
+				}
+				if (isTextPaddedFromTop)
+				{
+					isTextPaddedFromTop = false;
+					zoneCurrentHeightSoFar += fontSizeY;
+					while (zoneCurrentHeightSoFar < zoneSize.y)
+					{
+						linesInZone.splice(0, 0, "\n");
+						zoneCurrentHeightSoFar += fontSizeY;
+					}
+				}
+				else if (isTextCenteredVertically)
+				{
+					isTextCenteredVertically = false;
+					zoneCurrentHeightSoFar += fontSizeY;
+					while (zoneCurrentHeightSoFar < zoneSize.y)
+					{
+						linesInZone.splice(0, 0, "\n");
+						linesInZone.push("\n");
+						zoneCurrentHeightSoFar += fontSizeY * 2;
+					}
+				}
+				wordCurrent = "";
+				lineCurrentWidthSoFar = zoneSize.x;
+				zoneCurrentHeightSoFar = zoneSize.y;
+			}
+			else if (contentChar == "<") // control tag
+			{
+				var indexOfTagCloseChar = content.indexOf(">", i + 1);
+				var controlCode = content.substring(i + 1, indexOfTagCloseChar);
+
+				if (controlCode == "blockquote")
+				{
+					isInBlockQuote = true;
+					zoneSize.x -= zoneDefn.margin.x;
+				}
+				else if (controlCode == "/blockquote")
+				{
+					isInBlockQuote = false;
+					zoneSize.x += zoneDefn.margin.x;
+				}
+				else if (controlCode == "center")
+				{
+					isTextCenteredHorizontally = true;
+				}
+				else if (controlCode == "centerVertical")
+				{
+					isTextCenteredVertically = true;
+				}
+				else if (controlCode == "left")
+				{
+					isTextCenteredHorizontally = false;
+				}
+				else if (controlCode == "padTop")
+				{
+					isTextPaddedFromTop = true;
+				}
+				else
+				{
+					throw "Unrecognized control code: " + controlCode;
+				}
+
+				i += controlCode.length + 1;
+				continue; // hack
+			}
+			else
+			{
+				wordCurrent += contentChar;
+
+				var widthOfContentChar = display.widthOfText(contentChar);
+				lineCurrentWidthSoFar += widthOfContentChar;
 			}
 
-			if (charOffset.x >= zoneDefn.sizeMinusMargin.x)
+			if (lineCurrentWidthSoFar >= zoneSize.x)
 			{
-				charOffset.y += fontSizeY;
+				zoneCurrentHeightSoFar += fontSizeY;
 
-				if (charOffset.y >= zoneDefn.sizeMinusMargin.y)
+				if (zoneCurrentHeightSoFar >= zoneSize.y)
 				{
 					var pageIndex = document.pages.indexOf(page);
 					var pageIndexNext = pageIndex + zoneDefn.pageOffsetNext;
@@ -106,19 +187,33 @@ function Zone(defnName)
 					}
 				}
 
-				contentAsLines.push(lineCurrent);
+				if (isTextCenteredHorizontally)
+				{
+					lineCurrent = this.lineCenter(lineCurrent, zoneDefn, display);
+				}
+
+				linesInZone.push(lineCurrent);
 				lineCurrent = "" + wordCurrent;
 
-				charOffset.x = display.widthOfText(wordCurrent);
+				lineCurrentWidthSoFar = display.widthOfText(wordCurrent);
 
 				wordCurrent = "";
 			}
 		}
 
 		lineCurrent += wordCurrent;
-		contentAsLines.push(lineCurrent);
+		linesInZone.push(lineCurrent);
 
-		this.contentAsLines = contentAsLines;
+		this.contentAsLines = linesInZone;
+	};
+
+	Zone.prototype.lineCenter = function(lineToCenter, zoneDefn, display)
+	{
+		while (display.widthOfText(lineToCenter) < zoneDefn.sizeMinusMargin.x)
+		{
+			lineToCenter = " " + lineToCenter + " ";
+		}
+		return lineToCenter;
 	};
 
 	// drawable
@@ -140,69 +235,69 @@ function Zone(defnName)
 
 		var contentAsLines = zone.contentAsLines;
 
-		if (contentAsLines != null)
-		{	
-			var fontName = zoneDefn.fontName;
-			if (fontName == null)
+		if (contentAsLines == null)
+		{
+			return;
+		}
+
+		var fontName = zoneDefn.fontName;
+		if (fontName == null)
+		{
+			fontName = document.fonts[0].name;
+		}
+		var font = document.fonts[fontName];
+		var fontSizeY = font.heightInPixels;
+		display.fontSet(font);
+
+		for (var i = 0; i < contentAsLines.length; i++)
+		{
+			var contentLine = contentAsLines[i];
+
+			var widthOfWhitespaceBetweenCharacters;
+
+			if (contentLine.indexOf("\n") >= 0)
 			{
-				fontName = document.fonts[0].name;
+				widthOfWhitespaceBetweenCharacters = 0;
 			}
-			var font = document.fonts[fontName];
-			var fontSizeY = font.heightInPixels;
-			display.fontSet(font);
-
-			for (var i = 0; i < contentAsLines.length; i++)
+			else
 			{
-				var contentLine = contentAsLines[i];
-
-				var widthOfWhitespaceBetweenCharacters;
-
-				if (contentLine.indexOf("\n") >= 0)
-				{
-					widthOfWhitespaceBetweenCharacters = 0;
-				}
-				else
-				{
-					contentLine = contentLine.trim();
-
-					var widthOfLineBeforeJustification = display.widthOfText
-					(
-						contentLine
-					);
-
-					var widthOfWhitespaceBetweenCharacters = 
-						(
-							zoneSizeMinusMargin.x 
-							- widthOfLineBeforeJustification
-						)
-						/ (contentLine.length - 1); 
-				}
-
 				contentLine = contentLine.trim();
 
-				var charOffsetX = 0;
+				var widthOfLineBeforeJustification = display.widthOfText
+				(
+					contentLine
+				);
 
-				for (var j = 0; j < contentLine.length; j++)
-				{
-					var contentChar = contentLine[j];
-
-					drawPos.overwriteWithXY
+				var widthOfWhitespaceBetweenCharacters = 
 					(
-						zonePos.x + zoneMargin.x + charOffsetX,
-						zonePos.y + zoneMargin.y + fontSizeY * (i + 1)
-					);
+						zoneSizeMinusMargin.x 
+						- widthOfLineBeforeJustification
+					)
+					/ (contentLine.length - 1); 
+			}
 
-					display.drawText(contentChar, drawPos);
+			var charOffsetX = 0;
 
-					var widthOfChar = display.widthOfText
-					(
-						contentChar
-					);
+			for (var j = 0; j < contentLine.length; j++)
+			{
+				var contentChar = contentLine[j];
 
-					charOffsetX += 
-						widthOfChar
-						+ widthOfWhitespaceBetweenCharacters;
-				}
+				drawPos.overwriteWithXY
+				(
+					zonePos.x + zoneMargin.x + charOffsetX,
+					zonePos.y + zoneMargin.y + fontSizeY * (i + 1)
+				);
+
+				display.drawText(contentChar, drawPos);
+
+				var widthOfChar = display.widthOfText
+				(
+					contentChar
+				);
+
+				charOffsetX += 
+					widthOfChar
+					+ widthOfWhitespaceBetweenCharacters;
 			}
 		}
 	};

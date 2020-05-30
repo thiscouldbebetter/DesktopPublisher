@@ -24,12 +24,154 @@ function Document
 {
 	Document.demo = function()
 	{
+		return Document.demoOdyssey();
+	};
 
+	Document.demoOdyssey = function()
+	{
+		var textOdyssey =
+			"<center><centerVertical>The Odyssey\n"
+			+ "by Homer\n"
+			+ "translated by Samuel Butler\n"
+			+ "\f"
+			+ "\f"
+			+ "<center><centerVertical>Book I\n"
+			+ "\n"
+			+ "THE GODS IN COUNCIL--MINERVA'S VISIT TO ITHACA--THE CHALLENGE FROM"
+			+ " TELEMACHUS TO THE SUITORS.\n"
+			+ "\f"
+			+ "\f"
+			+ "Tell me, O Muse, of that ingenious hero who travelled far and wide"
+			+ " after he had sacked the famous town of Troy. Many cities did he visit,"
+			+ " and many were the nations with whose manners and customs he was"
+			+ " acquainted; moreover he suffered much by sea while trying to save his"
+			+ " own life and bring his men safely home; but do what he might he could"
+			+ " not save his men, for they perished through their own sheer folly in"
+			+ " eating the cattle of the Sun-god Hyperion; so the god prevented them"
+			+ " from ever reaching home. Tell me, too, about all these things, oh"
+			+ " daughter of Jove, from whatsoever source you may know them.\n"
+			+ "\n"
+			+ "So now all who escaped death in battle or by shipwreck had got safely"
+			+ " home except Ulysses, and he, though he was longing to return to his"
+			+ " wife and country, was detained by the goddess Calypso, who had got him"
+			+ " into a large cave and wanted to marry him. But as years went by, there"
+			+ " came a time when the gods settled that he should go back to Ithaca;"
+			+ " even then, however, when he was among his own people, his troubles were"
+			+ " not yet over; nevertheless all the gods had now begun to pity him"
+			+ " except Neptune, who still persecuted him without ceasing and would not"
+			+ " let him get home.\n"
+			+ "\n"
+			+ "Now Neptune had gone off to the Ethiopians, who are at the world's end,"
+			+ " and lie in two halves, the one looking West and the other East.[1] He had"
+			+ " gone there to accept a hecatomb of sheep and oxen, and was enjoying"
+			+ " himself at his festival; but the other gods met in the house of"
+			+ " Olympian Jove, and the sire of gods and men spoke first. At that moment"
+			+ " he was thinking of Aegisthus, who had been killed by Agamemnon's son"
+			+ " Orestes; so he said to the other gods:\n"
+			+ "\n"
+			+ "\"See now, how men lay blame upon us gods for what is after all nothing"
+			+ " but their own folly. Look at Aegisthus; he must needs make love to"
+			+ " Agamemnon's wife unrighteously and then kill Agamemnon, though he knew"
+			+ " it would be the death of him; for I sent Mercury to warn him not to do"
+			+ " either of these things, inasmuch as Orestes would be sure to take his"
+			+ " revenge when he grew up and wanted to return home. Mercury told him"
+			+ " this in all good will but he would not listen, and now he has paid for"
+			+ " everything in full.\"\n"
+			+ "\n"
+			+ "Then Minerva said, \"Father, son of Saturn, King of kings, it served"
+			+ " Aegisthus right, and so it would any one else who does as he did; but"
+			+ " Aegisthus is neither here nor there; it is for Ulysses that my heart"
+			+ " bleeds, when I think of his sufferings in that lonely sea-girt island,"
+			+ " far away, poor man, from all his friends. It is an island covered with"
+			+ " forest, in the very middle of the sea, and a goddess lives there,"
+			+ " daughter of the magician Atlas, who looks after the bottom of the"
+			+ " ocean, and carries the great columns that keep heaven and earth"
+			+ " asunder. This daughter of Atlas has got hold of poor unhappy Ulysses,"
+			+ " and keeps trying by every kind of blandishment to make him forget his"
+			+ " home, so that he is tired of life, and thinks of nothing but how he may"
+			+ " once more see the smoke of his own chimneys. You, sir, take no heed of"
+			+ " this, and yet when Ulysses was before Troy did he not propitiate you"
+			+ " with many a burnt sacrifice? Why then should you keep on being so angry"
+			+ " with him?\"\n"
+			+ "\n"
+			+ "[...]\n";
+
+
+		var pageDefnName = "PageDefn0";
+		var pageCount = 7;
+		var pages = [];
+		for (var i = 0; i < pageCount; i++)
+		{
+			pages.push(new Page(pageDefnName));
+		}
+
+		return new Document
+		(
+			"Odyssey", // name
+			new Coords(255, 330), // pageSizeInPixels
+			// fonts
+			[
+				new Font("sans-serif", 10)
+			],
+			// pageDefns
+			[
+				new PageDefn
+				(
+					"PageDefn0",
+					// zoneDefns"
+					[
+						new ZoneDefn
+						(
+							"0", // name
+							new Coords(0, 0), // pos
+							new Coords(255, 330), // size
+							new Coords(20, 20), // margin
+							1, // pageOffsetNext
+							"0" // zoneNameNext
+						),
+					]
+				) // end new PageDefn
+			],
+			// textFiles
+			[
+				new TextStringFromFile
+				(
+					"Odyssey.txt",
+					"Content/Odyssey.txt",
+					textOdyssey
+				)
+			],
+			// contentBlocks
+			[
+				new ContentBlock
+				(
+					"Content0",
+					"TextFile", // typeName
+					"Odyssey.txt" // data
+				)
+			],
+			pages,
+			// contentAssignments
+			[
+				new ContentAssignment
+				(
+					"Content0", // contentBlockName
+					0, // pageIndex
+					"0" // zoneName":"0"
+				)
+			]
+		);
+	};
+
+	Document.demoInvictus = function()
+	{
 		var textInvictus =
 
-			"Invictus\n"
-			+ "by William Ernest Henley\n\n"
+			"<center><centerVertical>"
+			+ "Invictus\n"
+			+ "by William Ernest Henley\f"
 
+			+ "<left>"
 			+ "Out of the night which covers me,"
 			+ " black as the pit from pole to pole,"
 			+ " I thank whatever gods may be"
