@@ -12,7 +12,7 @@ function PageDefn(name, zoneDefns)
 		{
 			zoneDefnNext = this.zoneDefns[zoneDefnNameNext];
 			zoneDefnNext.zoneDefnNamePrev = zoneDefn.name;
-		}		
+		}
 	}
 }
 

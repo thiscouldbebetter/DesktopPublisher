@@ -2,7 +2,7 @@
 function Page(defnName, zones)
 {
 	this.defnName = defnName;
-	this.zones = zones;
+	this.zones = (zones == null ? null : zones.addLookups("defnName"));
 }
 
 {
@@ -54,6 +54,7 @@ function Page(defnName, zones)
 		if (this.zones == null)
 		{
 			this.zones = defn.zoneDefns.map(x => new Zone(x.name));
+			this.zones.addLookups("defnName");
 		}
 	};
 

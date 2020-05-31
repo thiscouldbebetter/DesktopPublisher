@@ -16,10 +16,10 @@ function Display(sizeInPixels, renderToScreen)
 		);
 	}
 
-	Display.prototype.fontSet = function(font)
+	Display.prototype.fontSet = function(fontNameAndHeight)
 	{
-		this.font = font;
-		this.graphics.font = font.toString();
+		this.fontNameAndHeight = fontNameAndHeight;
+		this.graphics.font = this.fontNameAndHeight.toString();
 	}
 
 	Display.prototype.initialize = function()

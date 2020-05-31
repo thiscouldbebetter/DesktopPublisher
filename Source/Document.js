@@ -96,6 +96,7 @@ function Document
 			+ "\n"
 			+ "[...]\n";
 
+		var font = new FontNameAndHeight("Font", 10);
 
 		var pageDefnName = "PageDefn0";
 		var pageCount = 7;
@@ -111,7 +112,7 @@ function Document
 			new Coords(255, 330), // pageSizeInPixels
 			// fonts
 			[
-				new Font("sans-serif", 10)
+				new Font("Font", "../Content/Fonts/Font.ttf")
 			],
 			// pageDefns
 			[
@@ -122,13 +123,25 @@ function Document
 					[
 						new ZoneDefn
 						(
-							"0", // name
+							"A", // name
 							new Coords(0, 0), // pos
 							new Coords(255, 330), // size
 							new Coords(20, 20), // margin
 							1, // pageOffsetNext
-							"0" // zoneNameNext
+							"A", // zoneNameNext
+							font
 						),
+
+						new ZoneDefn
+						(
+							"PageNumber", // name
+							new Coords(235, 310), // pos
+							new Coords(10, 10), // size
+							new Coords(0, 0), // margin
+							1, // pageOffsetNext
+							"PageNumber", // zoneNameNext
+							font
+						)
 					]
 				) // end new PageDefn
 			],
@@ -148,7 +161,11 @@ function Document
 					"Content0",
 					"TextFile", // typeName
 					"Odyssey.txt" // data
-				)
+				),
+				new ContentBlock
+				(
+					"PageNumbers", "NumberSequence", "1-1000;2"
+				),
 			],
 			pages,
 			// contentAssignments
@@ -157,7 +174,13 @@ function Document
 				(
 					"Content0", // contentBlockName
 					0, // pageIndex
-					"0" // zoneName":"0"
+					"A" // zoneName
+				),
+				new ContentAssignment
+				(
+					"PageNumbers", // contentBlockName
+					0, // pageIndex
+					"PageNumber" // zoneName
 				)
 			]
 		);
@@ -192,13 +215,15 @@ function Document
 			+ " I am the master of my fate:"
 			+ " I am the captain of my soul.\n\n"
 
+		var font = new FontNameAndHeight("Font", 10);
+
 		return new Document
 		(
 			"Invictus", // name
 			new Coords(255, 330), // pageSizeInPixels
 			// fonts
 			[
-				new Font("sans-serif", 10)
+				new Font("Font", "../Content/Fonts/Font.ttf")
 			],
 			// pageDefns
 			[
@@ -214,7 +239,8 @@ function Document
 							new Coords(150, 80), // size
 							new Coords(20, 20), // margin
 							0, // pageOffsetNext
-							"1" // zoneNameNext
+							"1", // zoneNameNext
+							font
 						),
 						new ZoneDefn
 						(
@@ -223,7 +249,8 @@ function Document
 							new Coords(150, 80),
 							new Coords(20, 20),
 							0,
-							"2"
+							"2",
+							font
 						),
 						new ZoneDefn
 						(
@@ -232,7 +259,8 @@ function Document
 							new Coords(150, 80),
 							new Coords(20, 20),
 							1,
-							"0"
+							"0",
+							font
 						)
 					]
 				) // end new PageDefn
@@ -273,9 +301,10 @@ function Document
 		);
 	};
 
-	Document.prototype.initialize = function()
+	Document.prototype.initialize = function(callback)
 	{
 		this.pages.forEach(x => x.initialize(this));
+		this.fonts.forEach(x => x.load(callback));
 	};
 
 	Document.prototype.update = function()
@@ -311,7 +340,7 @@ function Document
 		for (var i = 0; i < fontsAsObjects.length; i++)
 		{
 			var fontAsObject = fontsAsObjects[i];
-			var font = new Font(fontAsObject.name, fontAsObject.heightInPixels);
+			var font = new Font(fontAsObject.name, fontAsObject.sourcePath);
 			fonts.push(font);
 		}
 

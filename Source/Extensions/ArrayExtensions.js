@@ -1,7 +1,4 @@
 
-
-// extensions
-
 function ArrayExtensions()
 {
 	// extension class

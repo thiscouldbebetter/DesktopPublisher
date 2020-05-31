@@ -1,5 +1,5 @@
 
-function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontName, colorBack, colorBorder)
+function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNameAndHeight, colorBack, colorBorder)
 {
 	this.name = name;
 	this.pos = pos;
@@ -7,7 +7,7 @@ function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNam
 	this.margin = margin;
 	this.zoneNameNext = zoneNameNext;
 	this.pageOffsetNext = pageOffsetNext;
-	this.fontName = fontName;
+	this.fontNameAndHeight = fontNameAndHeight;
 	this.colorBack = colorBack;
 	this.colorBorder = colorBorder;
 
@@ -23,7 +23,7 @@ function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNam
 }
 
 {
-	// serialzable
+	// serializable
 
 	ZoneDefn.fromDeserializedObject = function(zoneDefnAsObject)
 	{
@@ -35,7 +35,7 @@ function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNam
 			Coords.fromDeserializedObject(zoneDefnAsObject.margin), 
 			zoneDefnAsObject.pageOffsetNext, 
 			zoneDefnAsObject.zoneNameNext, 
-			zoneDefnAsObject.fontName
+			FontNameAndHeight.fromDeserializedObject(zoneDefnAsObject.fontNameAndHeight)
 		);
 
 		return returnValue;

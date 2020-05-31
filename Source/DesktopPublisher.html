@@ -53,8 +53,6 @@
 
 function buttonLoadDemoDocument_Clicked()
 {
-	var d = document;
-
 	var documentNew = Document.demo();
 	Session.Instance.document = documentNew;
 	controlsPopulate();
@@ -91,7 +89,12 @@ function controlsPopulate()
 function buttonDraw_Clicked()
 {
 	var documentToDisplay = Session.Instance.document;
-	documentToDisplay.initialize();
+	documentToDisplay.initialize(buttonDraw_Clicked_DocumentInitialized);
+}
+
+function buttonDraw_Clicked_DocumentInitialized()
+{
+	var documentToDisplay = Session.Instance.document;
 	documentToDisplay.update();
 	documentToDisplay.draw();
 }
@@ -173,6 +176,7 @@ function inputDocumentFileToLoad_Changed(inputDocumentFileToLoad)
 <script type="text/javascript" src="Document.js"></script>
 <script type="text/javascript" src="FileHelper.js"></script>
 <script type="text/javascript" src="Font.js"></script>
+<script type="text/javascript" src="FontNameAndHeight.js"></script>
 <script type="text/javascript" src="Page.js"></script>
 <script type="text/javascript" src="PageDefn.js"></script>
 <script type="text/javascript" src="Session.js"></script>

@@ -44,12 +44,7 @@ function Zone(defnName)
 		var display = new Display(new Coords(0, 0), false);
 		display.initialize();
 
-		var fontName = zoneDefn.fontName;
-		if (fontName == null)
-		{
-			fontName = document.fonts[0].name;
-		}
-		var font = document.fonts[fontName];
+		var font = zoneDefn.fontNameAndHeight;
 		var fontSizeY = font.heightInPixels;
 
 		var lineCurrent = "";
@@ -240,14 +235,10 @@ function Zone(defnName)
 			return;
 		}
 
-		var fontName = zoneDefn.fontName;
-		if (fontName == null)
-		{
-			fontName = document.fonts[0].name;
-		}
-		var font = document.fonts[fontName];
-		var fontSizeY = font.heightInPixels;
-		display.fontSet(font);
+		var fontNameAndHeight = zoneDefn.fontNameAndHeight;
+		var fontName = fontNameAndHeight.fontName;
+		display.fontSet(fontNameAndHeight);
+		var fontSizeY = fontNameAndHeight.heightInPixels;
 
 		for (var i = 0; i < contentAsLines.length; i++)
 		{
