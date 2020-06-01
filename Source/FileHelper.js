@@ -14,7 +14,7 @@ function FileHelper()
 				fileLoadedEvent.target.result;
 			var fileLoadedAsBytes = 
 				ByteHelper.stringUTF8ToBytes(fileLoadedAsBinaryString);
-			callback(fileToLoad.name, fileLoadedAsBytes);
+			callback(fileLoadedAsBytes);
 		}
  
 		fileReader.readAsBinaryString(fileToLoad);

@@ -17,6 +17,11 @@ function PageDefn(name, zoneDefns)
 }
 
 {
+	PageDefn.prototype.unload = function()
+	{
+		this.zoneDefns.forEach(x => x.unload());
+	};
+
 	// serializable
 
 	PageDefn.fromDeserializedObject = function(pageDefnAsObject)

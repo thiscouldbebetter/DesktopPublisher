@@ -53,7 +53,7 @@ function ContentType(name, contentFromData)
 			"TextFile",
 			(document, data) =>
 			{
-				return document.textFiles[data].text;
+				return document.contentFiles[data].text;
 			}
 		);
 

@@ -28,10 +28,12 @@
 
 <label>Content Files:</label>
 <br />
-<select id="selectContentFiles" size="4" readonly="true"></select>
-<br />
 <label>Upload New:</label>
 <input type="file" onchange="inputContentFileToUpload_Changed(this);" />
+<label>Selected:</label>
+<button onclick="buttonContentFileSelectedUnlink_Clicked();">Unlink</button>
+<br />
+<select id="selectContentFiles" size="4" readonly="true" onchange="selectContentFiles_Changed(this);"></select>
 <br />
 
 <label>Document Layout as JSON:</label><br />
@@ -51,11 +53,71 @@
 
 <script type="text/javascript">
 
+function buttonContentFileSelectedUnlink_Clicked()
+{
+	Session.Instance.document.contentFileSelectedUnlink();
+	controlsPopulate();
+}
+
+function buttonDraw_Clicked()
+{
+	var document = Session.Instance.document;
+	if (document == null)
+	{
+		alert("No document!");
+	}
+	else
+	{
+		document.initialize(buttonDraw_Clicked_DocumentInitialized);
+	}
+}
+
+function buttonDraw_Clicked_DocumentInitialized()
+{
+	var document = Session.Instance.document;
+	document.update();
+	document.draw();
+	document.unload();
+}
+
+function buttonExport_Clicked()
+{
+	var document = Session.Instance.document;
+	if (document == null)
+	{
+		alert("No document!");
+	}
+	else
+	{
+		var documentAsTarFile = document.toTarFile_Png();
+		var documentAsBytes = documentAsTarFile.toBytes();
+		FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".png.tar");
+	}
+}
+
 function buttonLoadDemoDocument_Clicked()
 {
 	var documentNew = Document.demo();
 	Session.Instance.document = documentNew;
 	controlsPopulate();
+}
+
+function buttonSaveDocument_Clicked()
+{
+	var document = Session.Instance.document;
+	if (document == null)
+	{
+		alert("No document!");
+	}
+	else
+	{
+		var documentAsTarFile = document.toTarFile();
+		var documentAsBytes = documentAsTarFile.toBytes();
+		FileHelper.saveBytesAsFile
+		(
+			documentAsBytes, documentToSave.name + ".doc.tar"
+		);
+	}
 }
 
 function controlsPopulate()
@@ -66,11 +128,11 @@ function controlsPopulate()
 	var inputDocumentName = d.getElementById("inputDocumentName");
 	inputDocumentName.value = documentToPopulateFrom.name;
 
-	var documentToPopulateFromAsJson = JSON.stringify(documentToPopulateFrom, null, 4);
+	var documentToPopulateFromAsJson = documentToPopulateFrom.toStringJson();
 	var textareaLayoutAsJson = d.getElementById("textareaLayoutAsJson");
 	textareaLayoutAsJson.value = documentToPopulateFromAsJson;
 
-	var contentFiles = documentToPopulateFrom.textFiles;
+	var contentFiles = documentToPopulateFrom.contentFiles;
 	var contentFilesAsSelectOptions = contentFiles.map
 	(
 		x =>
@@ -86,38 +148,6 @@ function controlsPopulate()
 	contentFilesAsSelectOptions.forEach(x => selectContentFiles.appendChild(x));
 }
 
-function buttonDraw_Clicked()
-{
-	var documentToDisplay = Session.Instance.document;
-	documentToDisplay.initialize(buttonDraw_Clicked_DocumentInitialized);
-}
-
-function buttonDraw_Clicked_DocumentInitialized()
-{
-	var documentToDisplay = Session.Instance.document;
-	documentToDisplay.update();
-	documentToDisplay.draw();
-}
-
-function buttonExport_Clicked()
-{
-	var documentToExport = Session.Instance.document;
-	var documentAsTarFile = documentToExport.toTarFile_Png();
-	var documentAsBytes = documentAsTarFile.toBytes();
-	FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".png.tar");
-}
-
-function buttonSaveDocument_Clicked()
-{
-	var documentToSave = Session.Instance.document;
-	var documentAsTarFile = documentToSave.toTarFile();
-	var documentAsBytes = documentAsTarFile.toBytes();
-	FileHelper.saveBytesAsFile
-	(
-		documentAsBytes, documentToSave.name + ".doc.tar"
-	);
-}
-
 function inputContentFileToUpload_Changed(inputContentFileToUpload)
 {
 	var contentFileToLoad = inputContentFileToUpload.files[0];
@@ -128,14 +158,18 @@ function inputContentFileToUpload_Changed(inputContentFileToUpload)
 			contentFileToLoad,
 			contentFileAsBytes =>
 			{
-				var fileContentAsString = ByteHelper.bytesToStringUTF8(fileAsBytes);
+				var contentFileContentAsString =
+					ByteHelper.bytesToStringUTF8(contentFileAsBytes);
 				var fileAsTextString = new TextStringFromFile
 				(
-					fileToLoad.name,
-					fileToLoad.name, // sourcePath
-					fileContentAsString
+					contentFileToLoad.name,
+					contentFileToLoad.name, // sourcePath
+					contentFileContentAsString
 				);
-				Session.Instance.document.textFiles = fileAsTextString;
+				Session.Instance.document.contentFileAdd
+				(
+					fileAsTextString
+				);
 				controlsPopulate();
 			}
 		);
@@ -159,6 +193,13 @@ function inputDocumentFileToLoad_Changed(inputDocumentFileToLoad)
 			}
 		);
 	}
+}
+
+function selectContentFiles_Changed(selectContentFiles)
+{
+	var document = Session.Instance.document;
+	var contentFileName = selectContentFiles.value;
+	document.contentFileSelectByName(contentFileName);
 }
 
 </script>

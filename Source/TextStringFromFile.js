@@ -15,6 +15,11 @@ function TextStringFromFile(name, sourcePath, text)
 		);
 	};
 
+	TextStringFromFile.prototype.load = function()
+	{
+		// todo
+	};
+
 	TextStringFromFile.prototype.unload = function()
 	{
 		delete this.text;

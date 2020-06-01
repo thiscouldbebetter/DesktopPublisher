@@ -5,7 +5,7 @@ function Document
 	pageSizeInPixels,
 	fonts,
 	pageDefns,
-	textFiles,
+	contentFiles,
 	contentBlocks,
 	pages,
 	contentAssignments
@@ -15,7 +15,7 @@ function Document
 	this.pageSizeInPixels = pageSizeInPixels;
 	this.fonts = fonts.addLookups("name");
 	this.pageDefns = pageDefns.addLookups("name");
-	this.textFiles = textFiles.addLookups("name");
+	this.contentFiles = contentFiles.addLookups("name");
 	this.contentBlocks = contentBlocks.addLookups("name");
 	this.pages = pages;
 	this.contentAssignments = contentAssignments;
@@ -33,14 +33,14 @@ function Document
 			"<center><centerVertical>The Odyssey\n"
 			+ "by Homer\n"
 			+ "translated by Samuel Butler\n"
-			+ "\f"
-			+ "\f"
+			+ "<pageBreak>"
+			+ "<pageBreak>"
 			+ "<center><centerVertical>Book I\n"
 			+ "\n"
 			+ "THE GODS IN COUNCIL--MINERVA'S VISIT TO ITHACA--THE CHALLENGE FROM"
 			+ " TELEMACHUS TO THE SUITORS.\n"
-			+ "\f"
-			+ "\f"
+			+ "<pageBreak>"
+			+ "<pageBreak>"
 			+ "Tell me, O Muse, of that ingenious hero who travelled far and wide"
 			+ " after he had sacked the famous town of Troy. Many cities did he visit,"
 			+ " and many were the nations with whose manners and customs he was"
@@ -145,12 +145,12 @@ function Document
 					]
 				) // end new PageDefn
 			],
-			// textFiles
+			// contentFiles
 			[
 				new TextStringFromFile
 				(
-					"Odyssey.txt",
-					"Content/Odyssey.txt",
+					"Homer-Odyssey,_The.txt",
+					"Content/Homer-Odyssey,_The.txt",
 					textOdyssey
 				)
 			],
@@ -160,7 +160,7 @@ function Document
 				(
 					"Content0",
 					"TextFile", // typeName
-					"Odyssey.txt" // data
+					"Homer-Odyssey,_The.txt" // data
 				),
 				new ContentBlock
 				(
@@ -265,7 +265,7 @@ function Document
 					]
 				) // end new PageDefn
 			],
-			// textFiles
+			// contentFiles
 			[
 				new TextStringFromFile
 				(
@@ -304,8 +304,65 @@ function Document
 	Document.prototype.initialize = function(callback)
 	{
 		this.pages.forEach(x => x.initialize(this));
-		this.fonts.forEach(x => x.load(callback));
+		this.loadAll(callback);
 	};
+
+	Document.prototype.contentFileAdd = function(contentFileToAdd)
+	{
+		this.contentFiles.push(contentFileToAdd);
+		this.contentFiles[contentFileToAdd.name] = contentFileToAdd;
+	};
+
+	Document.prototype.contentFileSelectByName = function(contentFileNameToSelect)
+	{
+		this.contentFileSelectedName = contentFileNameToSelect;
+	};
+
+	Document.prototype.contentFileSelected = function()
+	{
+		return (this.contentFileSelectedName == null ? null : this.contentFiles[this.contentFileSelectedName] );
+	};
+
+	Document.prototype.contentFileSelectedUnlink = function()
+	{
+		var contentFileSelected = this.contentFileSelected();
+		if (contentFileSelected != null)
+		{
+			this.contentFileSelectedName = null;
+			var index = this.contentFiles.indexOf(this.contentFileSelected);
+			this.contentFiles.splice(index, 1);
+		}
+	};
+
+	Document.prototype.isLoaded = function()
+	{
+		var areAnyFontsNotLoaded = this.fonts.some(x => x.isLoaded == false);
+		var areAnyContentFilesNotLoaded = this.contentFiles.some(x => x.text == null);
+		var isEverythingLoaded = (areAnyFontsNotLoaded == false && areAnyContentFilesNotLoaded == false);
+		return isEverythingLoaded;
+	};
+
+	Document.prototype.loadAll = function(callback)
+	{
+		var doc = this;
+		
+		function doCallbackIfAllItemsLoaded()
+		{
+			if (doc.isLoaded())
+			{
+				callback();
+			}
+		}
+		this.fonts.forEach(x => x.load(doCallbackIfAllItemsLoaded));
+		//this.contentFiles.forEach(x => x.load(doCallbackIfAllItemsLoaded));
+	};
+
+	Document.prototype.unload = function()
+	{
+		this.fonts.forEach(x => x.unload());
+		this.pageDefns.forEach(x => x.unload());
+		this.pages.forEach(x => x.unload());
+	}
 
 	Document.prototype.update = function()
 	{
@@ -365,7 +422,7 @@ function Document
 		);
 
 		/*
-		var textFiles = layoutAsObject.textFiles.map
+		var contentFiles = layoutAsObject.contentFiles.map
 		(
 			x => TextStringFromFile.fromDeserializedObject(x)
 		);
@@ -382,6 +439,22 @@ function Document
 			pages,
 			contentAssignments
 		);
+
+		return returnValue;
+	};
+
+	// strings
+
+	Document.prototype.toStringJson = function()
+	{
+		var contentFileTextsToRestore = this.contentFiles.map(x => x.text);
+		this.contentFiles.forEach((x, i) => delete x.text);
+		var contentFileSelectedName = this.contentFileSelectedName;
+
+		var returnValue = JSON.stringify(this, null, 4);
+
+		this.contentFiles.forEach((x, i) => x.text = contentFileTextsToRestore[i]);
+		this.contentFileSelectedName = contentFileSelectedName;
 
 		return returnValue;
 	};
@@ -417,7 +490,7 @@ function Document
 
 	Document.prototype.toTarFile = function()
 	{
-		var contentFiles = this.textFiles;
+		var contentFiles = this.contentFiles;
 
 		var contentFilesAsTarFileEntries = contentFiles.map
 		(
@@ -432,8 +505,8 @@ function Document
 			}
 		);
 
-		contentFiles.forEach(x => x.unload());
-		var layoutAsJson = JSON.stringify(this, null, 4);
+		var layoutAsJson = this.toStringJson();
+
 		var layoutAsBytes = ByteHelper.stringUTF8ToBytes(layoutAsJson);
 		var layoutAsTarFileEntry = new TarFileEntry
 		(

@@ -29,7 +29,7 @@ function Zone(defnName)
 	Zone.prototype.update = function(document, page)
 	{
 		var zoneDefn = this.defn(document, page);
-		var zoneSize = zoneDefn.sizeMinusMargin;
+		var zoneSize = zoneDefn.sizeMinusMargin();
 
 		var content = this.content(document);
 
@@ -76,38 +76,6 @@ function Zone(defnName)
 				wordCurrent = "";
 				lineCurrentWidthSoFar = zoneSize.x;
 			}
-			else if (contentChar == "\f") // formfeed
-			{
-				lineCurrent += wordCurrent + "\n";
-				if (isTextCenteredHorizontally)
-				{
-					lineCurrent = this.lineCenter(lineCurrent, zoneDefn, display);
-				}
-				if (isTextPaddedFromTop)
-				{
-					isTextPaddedFromTop = false;
-					zoneCurrentHeightSoFar += fontSizeY;
-					while (zoneCurrentHeightSoFar < zoneSize.y)
-					{
-						linesInZone.splice(0, 0, "\n");
-						zoneCurrentHeightSoFar += fontSizeY;
-					}
-				}
-				else if (isTextCenteredVertically)
-				{
-					isTextCenteredVertically = false;
-					zoneCurrentHeightSoFar += fontSizeY;
-					while (zoneCurrentHeightSoFar < zoneSize.y)
-					{
-						linesInZone.splice(0, 0, "\n");
-						linesInZone.push("\n");
-						zoneCurrentHeightSoFar += fontSizeY * 2;
-					}
-				}
-				wordCurrent = "";
-				lineCurrentWidthSoFar = zoneSize.x;
-				zoneCurrentHeightSoFar = zoneSize.y;
-			}
 			else if (contentChar == "<") // control tag
 			{
 				var indexOfTagCloseChar = content.indexOf(">", i + 1);
@@ -139,6 +107,39 @@ function Zone(defnName)
 				{
 					isTextPaddedFromTop = true;
 				}
+				else if (controlCode == "pageBreak") // formfeed
+				{
+					lineCurrent += wordCurrent + "\n";
+					if (isTextCenteredHorizontally)
+					{
+						lineCurrent = this.lineCenter(lineCurrent, zoneDefn, display);
+					}
+					if (isTextPaddedFromTop)
+					{
+						isTextPaddedFromTop = false;
+						zoneCurrentHeightSoFar += fontSizeY;
+						while (zoneCurrentHeightSoFar < zoneSize.y)
+						{
+							linesInZone.splice(0, 0, "\n");
+							zoneCurrentHeightSoFar += fontSizeY;
+						}
+					}
+					else if (isTextCenteredVertically)
+					{
+						isTextCenteredVertically = false;
+						zoneCurrentHeightSoFar += fontSizeY;
+						while (zoneCurrentHeightSoFar < zoneSize.y)
+						{
+							linesInZone.splice(0, 0, "\n");
+							linesInZone.push("\n");
+							zoneCurrentHeightSoFar += fontSizeY * 2;
+						}
+					}
+					wordCurrent = "";
+					lineCurrentWidthSoFar = zoneSize.x;
+					zoneCurrentHeightSoFar = zoneSize.y;
+				}
+
 				else
 				{
 					throw "Unrecognized control code: " + controlCode;
@@ -204,11 +205,17 @@ function Zone(defnName)
 
 	Zone.prototype.lineCenter = function(lineToCenter, zoneDefn, display)
 	{
-		while (display.widthOfText(lineToCenter) < zoneDefn.sizeMinusMargin.x)
+		while (display.widthOfText(lineToCenter) < zoneDefn.sizeMinusMargin().x)
 		{
 			lineToCenter = " " + lineToCenter + " ";
 		}
 		return lineToCenter;
+	};
+
+	Zone.prototype.unload = function()
+	{
+		delete this._content;
+		delete this.contentAsLines;
 	};
 
 	// drawable
@@ -224,7 +231,7 @@ function Zone(defnName)
 		var zonePos = zoneDefn.pos;
 		var zoneSize = zoneDefn.size;
 		var zoneMargin = zoneDefn.margin;
-		var zoneSizeMinusMargin = zoneDefn.sizeMinusMargin;
+		var zoneSizeMinusMargin = zoneDefn.sizeMinusMargin();
 
 		display.drawRectangle(zonePos, zoneSize, zoneDefn.colorBack, zoneDefn.colorBorder);
 

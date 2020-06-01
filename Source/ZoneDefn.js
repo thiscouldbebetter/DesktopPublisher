@@ -10,19 +10,30 @@ function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNam
 	this.fontNameAndHeight = fontNameAndHeight;
 	this.colorBack = colorBack;
 	this.colorBorder = colorBorder;
-
-	this.zoneNamePrev = null;
-
-	this.sizeMinusMargin = this.size.clone().subtract
-	(
-		this.margin
-	).subtract
-	(
-		this.margin
-	);
 }
 
 {
+	ZoneDefn.prototype.sizeMinusMargin = function()
+	{
+		if (this._sizeMinusMargin == null)
+		{
+			this._sizeMinusMargin = this.size.clone().subtract
+			(
+				this.margin
+			).subtract
+			(
+				this.margin
+			);
+		}
+		return this._sizeMinusMargin;
+
+	};
+
+	ZoneDefn.prototype.unload = function()
+	{
+		delete this._sizeMinusMargin;
+	};
+
 	// serializable
 
 	ZoneDefn.fromDeserializedObject = function(zoneDefnAsObject)

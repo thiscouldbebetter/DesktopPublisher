@@ -2,7 +2,10 @@
 function Page(defnName, zones)
 {
 	this.defnName = defnName;
-	this.zones = (zones == null ? null : zones.addLookups("defnName"));
+	if (zones != null)
+	{
+		this.zones = zones.addLookups("defnName");
+	}
 }
 
 {
@@ -14,6 +17,12 @@ function Page(defnName, zones)
 	Page.prototype.initialize = function(document)
 	{
 		this.zonesBuild(document);
+	};
+
+	Page.prototype.unload = function()
+	{
+		this.zones.forEach(x => x.unload());
+		delete this.zones;
 	};
 
 	Page.prototype.update = function(document)
