@@ -96,8 +96,6 @@ function Document
 			+ "\n"
 			+ "[...]\n";
 
-		var font = new FontNameAndHeight("Font", 10);
-
 		var pageSequence = new PageSequence( [ "PageDefn0" ] );
 		var pageSequences = [ pageSequence ];
 
@@ -124,18 +122,18 @@ function Document
 							new Coords(20, 20), // margin
 							1, // pageOffsetNext
 							"A", // zoneNameNext
-							font
+							new FontNameAndHeight("Font", 10)
 						),
 
 						new ZoneDefn
 						(
 							"PageNumber", // name
-							new Coords(125, 310), // pos
-							new Coords(30, 10), // size
+							new Coords(125, 315), // pos
+							new Coords(30, 8), // size
 							new Coords(0, 0), // margin
 							1, // pageOffsetNext
 							"PageNumber", // zoneNameNext
-							font
+							new FontNameAndHeight("Font", 8)
 						)
 					]
 				) // end new PageDefn

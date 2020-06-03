@@ -13,7 +13,7 @@ function PageSequence(pageDefnNames)
 	{
 		var pagesToDraw = this.pages.filter
 		(
-			(x, i) => i > pageRange.min - 1 && i < pageRange.max
+			(x, i) => i >= pageRange.min - 1 && i < pageRange.max
 		);
 		pagesToDraw.forEach(x => x.draw(document));
 	}

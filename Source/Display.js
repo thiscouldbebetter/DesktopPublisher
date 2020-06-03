@@ -91,7 +91,5 @@ function Display(sizeInPixels, renderToScreen)
 			text,
 			pos.x, pos.y
 		);
-
-		
 	}
 }
