@@ -26,7 +26,7 @@ function Zone(defnName)
 		return returnValue;
 	};
 
-	Zone.prototype.update = function(document, page)
+	Zone.prototype.update = function(document, pageSequence, page)
 	{
 		var zoneDefn = this.defn(document, page);
 		var zoneSize = zoneDefn.sizeMinusMargin();
@@ -162,23 +162,25 @@ function Zone(defnName)
 
 				if (zoneCurrentHeightSoFar >= zoneSize.y)
 				{
-					var pageIndex = document.pages.indexOf(page);
+					// Create a new page.
+					var pageIndex = page.pageIndex;
 					var pageIndexNext = pageIndex + zoneDefn.pageOffsetNext;
-					var pageNext = document.pages[pageIndexNext];
+					var pageNext = pageSequence.pages[pageIndexNext];
 					if (pageNext == null)
 					{
-						break;
+						pageNext = pageSequence.pageAdd(document);
 					}
 					page = pageNext;
 					var zoneNextName = zoneDefn.zoneNameNext;
 					var zoneNext = pageNext.zones[zoneNextName];
 					if (zoneNext != null)
 					{
-						zoneNext._content = 
-							wordCurrent 
-							+ content.substr(i + 1);
-						wordCurrent = "";
-						zoneNext.update(document, page);
+						zoneNext._content = wordCurrent + content.substr(i + 1);
+						if (this._content != zoneNext._content)
+						{
+							wordCurrent = "";
+							zoneNext.update(document, pageSequence, page);
+						}
 						break;
 					}
 				}

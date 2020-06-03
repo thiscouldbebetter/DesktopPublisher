@@ -41,6 +41,11 @@
 </div>
 
 <div>
+	<label>Pages:</label>
+	<label>From:</label>
+	<input id="inputPageFrom" type="number"></input>
+	<label>To:</label>
+	<input id="inputPageTo" type="number"></input>
 	<button onclick="buttonDraw_Clicked();">Render as Images</button>
 	<button onclick="buttonExport_Clicked();">Export as .png.tar</button>
 </div>
@@ -74,10 +79,17 @@ function buttonDraw_Clicked()
 
 function buttonDraw_Clicked_DocumentInitialized()
 {
-	var document = Session.Instance.document;
-	document.update();
-	document.draw();
-	document.unload();
+	var d = document;
+	var inputPageFrom = d.getElementById("inputPageFrom");
+	var inputPageTo = d.getElementById("inputPageTo");
+	var pageFrom = parseInt(inputPageFrom.value);
+	var pageTo = parseInt(inputPageTo.value);
+	var pageRange = new Range(pageFrom, pageTo);
+
+	var documentToDraw = Session.Instance.document;
+	documentToDraw.update();
+	documentToDraw.draw(pageRange);
+	documentToDraw.unload();
 }
 
 function buttonExport_Clicked()
@@ -220,6 +232,8 @@ function selectContentFiles_Changed(selectContentFiles)
 <script type="text/javascript" src="FontNameAndHeight.js"></script>
 <script type="text/javascript" src="Page.js"></script>
 <script type="text/javascript" src="PageDefn.js"></script>
+<script type="text/javascript" src="PageSequence.js"></script>
+<script type="text/javascript" src="Range.js"></script>
 <script type="text/javascript" src="Session.js"></script>
 <script type="text/javascript" src="TextStringFromFile.js"></script>
 <script type="text/javascript" src="Zone.js"></script>

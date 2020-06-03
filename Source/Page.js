@@ -1,11 +1,8 @@
 
-function Page(defnName, zones)
+function Page(pageIndex, defnName)
 {
+	this.pageIndex = pageIndex;
 	this.defnName = defnName;
-	if (zones != null)
-	{
-		this.zones = zones.addLookups("defnName");
-	}
 }
 
 {
@@ -14,25 +11,22 @@ function Page(defnName, zones)
 		return document.pageDefns[this.defnName];
 	};
 
-	Page.prototype.initialize = function(document)
-	{
-		this.zonesBuild(document);
-	};
-
 	Page.prototype.unload = function()
 	{
 		this.zones.forEach(x => x.unload());
 		delete this.zones;
 	};
 
-	Page.prototype.update = function(document)
+	Page.prototype.update = function(document, pageSequence)
 	{
+		this.zonesBuild(document);
+
 		var defn = this.defn(document);
 		var zoneDefns = defn.zoneDefns;
 
 		var contentAssignments = document.contentAssignments;
 
-		var pageIndex = document.pages.indexOf(this);
+		var pageIndex = this.pageIndex;
 
 		for (var i = 0; i < contentAssignments.length; i++)
 		{
@@ -52,7 +46,7 @@ function Page(defnName, zones)
 		for (var i = 0; i < this.zones.length; i++)
 		{
 			var zone = this.zones[i];
-			zone.update(document, this);
+			zone.update(document, pageSequence, this);
 		}
 	};
 
@@ -69,10 +63,10 @@ function Page(defnName, zones)
 
 	// drawable
 
-	Page.prototype.draw = function(document, renderToScreen)
+	Page.prototype.draw = function(document)
 	{
 		var displaySizeInPixels = document.pageSizeInPixels;
-		this.display = new Display(displaySizeInPixels, renderToScreen);
+		this.display = new Display(displaySizeInPixels);
 		this.display.initialize();
 
 		this.display.clear();

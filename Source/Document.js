@@ -7,7 +7,7 @@ function Document
 	pageDefns,
 	contentFiles,
 	contentBlocks,
-	pages,
+	pageSequences,
 	contentAssignments
 )
 {
@@ -17,7 +17,7 @@ function Document
 	this.pageDefns = pageDefns.addLookups("name");
 	this.contentFiles = contentFiles.addLookups("name");
 	this.contentBlocks = contentBlocks.addLookups("name");
-	this.pages = pages;
+	this.pageSequences = pageSequences;
 	this.contentAssignments = contentAssignments;
 }
 
@@ -98,13 +98,8 @@ function Document
 
 		var font = new FontNameAndHeight("Font", 10);
 
-		var pageDefnName = "PageDefn0";
-		var pageCount = 7;
-		var pages = [];
-		for (var i = 0; i < pageCount; i++)
-		{
-			pages.push(new Page(pageDefnName));
-		}
+		var pageSequence = new PageSequence( [ "PageDefn0" ] );
+		var pageSequences = [ pageSequence ];
 
 		return new Document
 		(
@@ -135,8 +130,8 @@ function Document
 						new ZoneDefn
 						(
 							"PageNumber", // name
-							new Coords(235, 310), // pos
-							new Coords(10, 10), // size
+							new Coords(125, 310), // pos
+							new Coords(30, 10), // size
 							new Coords(0, 0), // margin
 							1, // pageOffsetNext
 							"PageNumber", // zoneNameNext
@@ -167,7 +162,7 @@ function Document
 					"PageNumbers", "NumberSequence", "1-1000;2"
 				),
 			],
-			pages,
+			pageSequences,
 			// contentAssignments
 			[
 				new ContentAssignment
@@ -303,7 +298,6 @@ function Document
 
 	Document.prototype.initialize = function(callback)
 	{
-		this.pages.forEach(x => x.initialize(this));
 		this.loadAll(callback);
 	};
 
@@ -361,22 +355,22 @@ function Document
 	{
 		this.fonts.forEach(x => x.unload());
 		this.pageDefns.forEach(x => x.unload());
-		this.pages.forEach(x => x.unload());
+		this.pageSequences.forEach(x => x.unload());
 	}
 
 	Document.prototype.update = function()
 	{
-		this.pages.forEach(x => x.update(this));
+		this.pageSequences.forEach(x => x.update(this));
 	};
 
 	// drawable
 
-	Document.prototype.draw = function()
+	Document.prototype.draw = function(pageRange)
 	{
 		var divOutput = document.getElementById("divOutput");
 		divOutput.innerHTML = "";
 
-		this.pages.forEach(x => x.draw(this));
+		this.pageSequences.forEach(x => x.draw(this, pageRange));
 	};
 
 	// serializable
@@ -411,9 +405,9 @@ function Document
 			x => ContentBlock.fromDeserializedObject(x)
 		);
 
-		var pages = layoutAsObject.pages.map
+		var pageSequences = layoutAsObject.pageSequences.map
 		(
-			x => Page.fromDeserializedObject(x)
+			x => PageSequence.fromDeserializedObject(x)
 		);
 
 		var contentAssignments = layoutAsObject.contentAssignments.map
@@ -436,7 +430,7 @@ function Document
 			pageDefns,
 			contentFiles,
 			contentBlocks,
-			pages,
+			pageSequences,
 			contentAssignments
 		);
 
