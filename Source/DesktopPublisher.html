@@ -134,7 +134,7 @@ function buttonSaveDocument_Clicked()
 		var documentAsBytes = documentAsTarFile.toBytes();
 		FileHelper.saveBytesAsFile
 		(
-			documentAsBytes, documentToSave.name + ".doc.tar"
+			documentAsBytes, document.name + ".doc.tar"
 		);
 	}
 }
@@ -247,10 +247,10 @@ function selectContentFiles_Changed(selectContentFiles)
 <script type="text/javascript" src="ZoneDefn.js"></script>
 <script type="text/javascript" src="ZoneLayout.js"></script>
 
-<script type="text/javascript" src="Tar/TarFile.js"></script>
-<script type="text/javascript" src="Tar/TarFileEntry.js"></script>
-<script type="text/javascript" src="Tar/TarFileEntryHeader.js"></script>
-<script type="text/javascript" src="Tar/TarFileTypeFlag.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFile.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFileEntry.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFileEntryHeader.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFileTypeFlag.js"></script>
 
 </body>
 </html>

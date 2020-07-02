@@ -8,15 +8,14 @@ function FileHelper()
 	FileHelper.loadFileAsBytes = function(fileToLoad, callback)
 	{
 		var fileReader = new FileReader();
-		fileReader.onload = function(fileLoadedEvent)
+		fileReader.onload = (fileLoadedEvent) =>
 		{
 			var fileLoadedAsBinaryString = 
 				fileLoadedEvent.target.result;
 			var fileLoadedAsBytes = 
 				ByteHelper.stringUTF8ToBytes(fileLoadedAsBinaryString);
-			callback(fileLoadedAsBytes);
+			callback(fileToLoad.name, fileLoadedAsBytes);
 		}
- 
 		fileReader.readAsBinaryString(fileToLoad);
 	};
 

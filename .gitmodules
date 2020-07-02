@@ -1,0 +1,3 @@
+[submodule "Source/Tar"]
+	path = Source/Tar
+	url = https://github.com/thiscouldbebetter/TarFileExplorer
