@@ -46,16 +46,14 @@ class ZoneLayout
 		{
 			this.contentChar = this.content[this.contentCharIndex];
 
-			var shouldContinue = this.layOut_ContentChar_1();
-			if (shouldContinue)
+			var isNewZoneNeeded = this.layOut_ContentChar_1_Handle();
+			if (isNewZoneNeeded)
 			{
-				continue;
-			}
-
-			var shouldBreak = this.layOut_ContentChar_2();
-			if (shouldBreak)
-			{
-				break;
+				var shouldBreak = this.layOut_ContentChar_2_ZoneNew();
+				if (shouldBreak)
+				{
+					break;
+				}
 			}
 		}
 
@@ -65,9 +63,9 @@ class ZoneLayout
 		this.zone.contentAsLines = this.linesInZone;
 	}
 
-	layOut_ContentChar_1()
+	layOut_ContentChar_1_Handle()
 	{
-		var shouldContinue = false;
+		var isNewZoneNeeded = true;
 
 		if (this.contentChar == " ")
 		{
@@ -89,40 +87,40 @@ class ZoneLayout
 			var indexOfTagCloseChar = this.content.indexOf(">", this.contentCharIndex + 1);
 			var controlCode = this.content.substring(this.contentCharIndex + 1, indexOfTagCloseChar);
 
-			if (controlCode == "blockquote")
+			if (controlCode == ContentControlCodes.Blockquote)
 			{
 				this.isInBlockQuote = true;
 				this.zoneSize.x -= this.zoneDefn.margin.x;
 			}
-			else if (controlCode == "/blockquote")
+			else if (controlCode == ContentControlCodes.BlockquoteClose)
 			{
 				this.isInBlockQuote = false;
 				this.zoneSize.x += this.zoneDefn.margin.x;
 			}
-			else if (controlCode == "center")
+			else if (controlCode == ContentControlCodes.Center)
 			{
 				this.isTextCenteredHorizontally = true;
 			}
-			else if (controlCode == "centerVertical")
+			else if (controlCode == ContentControlCodes.CenterVertical)
 			{
 				this.isTextCenteredVertically = true;
 			}
-			else if (controlCode == "image")
+			else if (controlCode == ContentControlCodes.Image)
 			{
 				// todo
 				var image = new Image("../Content/Images/Test.png");
 				image.load();
 				this.imagesAwaitingLayout.push(image);
 			}
-			else if (controlCode == "left")
+			else if (controlCode == ContentControlCodes.Left)
 			{
 				this.isTextCenteredHorizontally = false;
 			}
-			else if (controlCode == "padTop")
+			else if (controlCode == ContentControlCodes.PadTop)
 			{
 				this.isTextPaddedFromTop = true;
 			}
-			else if (controlCode == "pageBreak") // formfeed
+			else if (controlCode == ContentControlCodes.PageBreak) // formfeed
 			{
 				this.lineCurrent += this.wordCurrent + "\n";
 				if (this.isTextCenteredHorizontally)
@@ -154,7 +152,6 @@ class ZoneLayout
 				this.lineCurrentWidthSoFar = this.zoneSize.x;
 				this.zoneCurrentHeightSoFar = this.zoneSize.y;
 			}
-
 			else
 			{
 				throw "Unrecognized control code: " + controlCode;
@@ -162,7 +159,7 @@ class ZoneLayout
 
 			this.contentCharIndex += controlCode.length + 1;
 			//continue; // hack
-			shouldContinue = true;
+			isNewZoneNeeded = false;
 		}
 		else
 		{
@@ -171,29 +168,37 @@ class ZoneLayout
 			var widthOfContentChar = this.display.widthOfText(this.contentChar);
 			this.lineCurrentWidthSoFar += widthOfContentChar;
 		}
-		return shouldContinue;
+
+		return isNewZoneNeeded;
 	}
 	
-	layOut_ContentChar_2()
+	layOut_ContentChar_2_ZoneNew()
 	{
 		var shouldBreak = false;
+
 		if (this.lineCurrentWidthSoFar >= this.zoneSize.x)
 		{
 			this.zoneCurrentHeightSoFar += this.fontSizeY;
 
 			if (this.zoneCurrentHeightSoFar >= this.zoneSize.y)
 			{
-				// Create a new page.
-				var pageIndex = this.page.pageIndex;
-				var pageIndexNext = pageIndex + this.zoneDefn.pageOffsetNext;
-				var pageNext = this.pageSequence.pages[pageIndexNext];
-				if (pageNext == null)
-				{
-					pageNext = this.pageSequence.pageAdd(this.document);
-				}
-				this.page = pageNext;
 				var zoneNextName = this.zoneDefn.zoneNameNext;
-				var zoneNext = pageNext.zones[zoneNextName];
+
+				if (this.zoneDefn.pageOffsetNext > 0)
+				{
+					// Create a new page.
+
+					var pageIndex = this.page.pageIndex;
+					var pageIndexNext = pageIndex + this.zoneDefn.pageOffsetNext;
+					var pageNext = this.pageSequence.pages[pageIndexNext];
+					if (pageNext == null)
+					{
+						pageNext = this.pageSequence.pageAdd(this.document);
+					}
+					this.page = pageNext;
+				}
+
+				var zoneNext = this.page.zones[zoneNextName];
 				if (zoneNext != null)
 				{
 					zoneNext._content =
@@ -204,7 +209,6 @@ class ZoneLayout
 						this.wordCurrent = "";
 						zoneNext.update(this.document, this.pageSequence, this.page);
 					}
-					// break;
 					shouldBreak = true;
 					return shouldBreak;
 				}
@@ -236,4 +240,16 @@ class ZoneLayout
 		}
 		return lineToCenter;
 	}
+}
+
+class ContentControlCodes
+{
+	static Blockquote = "blockquote";
+	static BlockquoteClose = "/blockquote";
+	static Center = "center";
+	static CenterVertical = "centerVertical";
+	static Image = "image";
+	static Left = "left";
+	static PadTop = "padTop";
+	static PageBreak = "pageBreak";
 }
