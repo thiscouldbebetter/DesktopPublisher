@@ -1,30 +1,31 @@
 
-function PageDefn(name, zoneDefns)
+class PageDefn
 {
-	this.name = name;
-	this.zoneDefns = zoneDefns.addLookups("name");
-
-	for (var z = 0; z < this.zoneDefns.length; z++)
+	constructor(name, zoneDefns)
 	{
-		var zoneDefn = this.zoneDefns[z];
-		var zoneDefnNameNext = zoneDefn.zoneDefnNameNext;
-		if (zoneDefnNameNext != null)
+		this.name = name;
+		this.zoneDefns = zoneDefns.addLookups("name");
+
+		for (var z = 0; z < this.zoneDefns.length; z++)
 		{
-			zoneDefnNext = this.zoneDefns[zoneDefnNameNext];
-			zoneDefnNext.zoneDefnNamePrev = zoneDefn.name;
+			var zoneDefn = this.zoneDefns[z];
+			var zoneDefnNameNext = zoneDefn.zoneDefnNameNext;
+			if (zoneDefnNameNext != null)
+			{
+				zoneDefnNext = this.zoneDefns[zoneDefnNameNext];
+				zoneDefnNext.zoneDefnNamePrev = zoneDefn.name;
+			}
 		}
 	}
-}
 
-{
-	PageDefn.prototype.unload = function()
+	unload()
 	{
 		this.zoneDefns.forEach(x => x.unload());
-	};
+	}
 
 	// serializable
 
-	PageDefn.fromDeserializedObject = function(pageDefnAsObject)
+	static fromDeserializedObject(pageDefnAsObject)
 	{
 		var zoneDefns = [];
 

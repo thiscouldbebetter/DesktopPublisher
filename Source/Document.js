@@ -1,33 +1,34 @@
 
-function Document
-(
-	name,
-	pageSizeInPixels,
-	fonts,
-	pageDefns,
-	contentFiles,
-	contentBlocks,
-	pageSequences,
-	contentAssignments
-)
+class Document
 {
-	this.name = name;
-	this.pageSizeInPixels = pageSizeInPixels;
-	this.fonts = fonts.addLookups("name");
-	this.pageDefns = pageDefns.addLookups("name");
-	this.contentFiles = contentFiles.addLookups("name");
-	this.contentBlocks = contentBlocks.addLookups("name");
-	this.pageSequences = pageSequences;
-	this.contentAssignments = contentAssignments;
-}
+	constructor
+	(
+		name,
+		pageSizeInPixels,
+		fonts,
+		pageDefns,
+		contentFiles,
+		contentBlocks,
+		pageSequences,
+		contentAssignments
+	)
+	{
+		this.name = name;
+		this.pageSizeInPixels = pageSizeInPixels;
+		this.fonts = fonts.addLookups("name");
+		this.pageDefns = pageDefns.addLookups("name");
+		this.contentFiles = contentFiles.addLookups("name");
+		this.contentBlocks = contentBlocks.addLookups("name");
+		this.pageSequences = pageSequences;
+		this.contentAssignments = contentAssignments;
+	}
 
-{
-	Document.demo = function()
+	static demo()
 	{
 		return Document.demoOdyssey();
-	};
+	}
 
-	Document.demoOdyssey = function()
+	static demoOdyssey()
 	{
 		var textOdyssey =
 			"<center><centerVertical>The Odyssey\n"
@@ -177,9 +178,9 @@ function Document
 				)
 			]
 		);
-	};
+	}
 
-	Document.demoInvictus = function()
+	static demoInvictus()
 	{
 		var textInvictus =
 
@@ -292,30 +293,30 @@ function Document
 				)
 			]
 		);
-	};
+	}
 
-	Document.prototype.initialize = function(callback)
+	initialize(callback)
 	{
 		this.loadAll(callback);
-	};
+	}
 
-	Document.prototype.contentFileAdd = function(contentFileToAdd)
+	contentFileAdd(contentFileToAdd)
 	{
 		this.contentFiles.push(contentFileToAdd);
 		this.contentFiles[contentFileToAdd.name] = contentFileToAdd;
-	};
+	}
 
-	Document.prototype.contentFileSelectByName = function(contentFileNameToSelect)
+	contentFileSelectByName(contentFileNameToSelect)
 	{
 		this.contentFileSelectedName = contentFileNameToSelect;
-	};
+	}
 
-	Document.prototype.contentFileSelected = function()
+	contentFileSelected()
 	{
 		return (this.contentFileSelectedName == null ? null : this.contentFiles[this.contentFileSelectedName] );
-	};
+	}
 
-	Document.prototype.contentFileSelectedUnlink = function()
+	contentFileSelectedUnlink()
 	{
 		var contentFileSelected = this.contentFileSelected();
 		if (contentFileSelected != null)
@@ -324,17 +325,17 @@ function Document
 			var index = this.contentFiles.indexOf(this.contentFileSelected);
 			this.contentFiles.splice(index, 1);
 		}
-	};
+	}
 
-	Document.prototype.isLoaded = function()
+	isLoaded()
 	{
 		var areAnyFontsNotLoaded = this.fonts.some(x => x.isLoaded == false);
 		var areAnyContentFilesNotLoaded = this.contentFiles.some(x => x.text == null);
 		var isEverythingLoaded = (areAnyFontsNotLoaded == false && areAnyContentFilesNotLoaded == false);
 		return isEverythingLoaded;
-	};
+	}
 
-	Document.prototype.loadAll = function(callback)
+	loadAll(callback)
 	{
 		var doc = this;
 		
@@ -347,33 +348,33 @@ function Document
 		}
 		this.fonts.forEach(x => x.load(doCallbackIfAllItemsLoaded));
 		//this.contentFiles.forEach(x => x.load(doCallbackIfAllItemsLoaded));
-	};
+	}
 
-	Document.prototype.unload = function()
+	unload()
 	{
 		this.fonts.forEach(x => x.unload());
 		this.pageDefns.forEach(x => x.unload());
 		this.pageSequences.forEach(x => x.unload());
 	}
 
-	Document.prototype.update = function()
+	update()
 	{
 		this.pageSequences.forEach(x => x.update(this));
-	};
+	}
 
 	// drawable
 
-	Document.prototype.draw = function(pageRange)
+	draw(pageRange)
 	{
 		var divOutput = document.getElementById("divOutput");
 		divOutput.innerHTML = "";
 
 		this.pageSequences.forEach(x => x.draw(this, pageRange));
-	};
+	}
 
 	// serializable
 
-	Document.fromLayoutJsonAndContentFiles = function(layoutAsJson, contentFiles)
+	static fromLayoutJsonAndContentFiles(layoutAsJson, contentFiles)
 	{
 		var layoutAsObject = JSON.parse(layoutAsJson);
 
@@ -433,11 +434,11 @@ function Document
 		);
 
 		return returnValue;
-	};
+	}
 
 	// strings
 
-	Document.prototype.toStringJson = function()
+	toStringJson()
 	{
 		var contentFileTextsToRestore = this.contentFiles.map(x => x.text);
 		this.contentFiles.forEach((x, i) => delete x.text);
@@ -449,11 +450,11 @@ function Document
 		this.contentFileSelectedName = contentFileSelectedName;
 
 		return returnValue;
-	};
+	}
 
 	// tar
 
-	Document.fromTarFile = function(documentAsTarFile)
+	static fromTarFile(documentAsTarFile)
 	{
 		var tarFileEntries = documentAsTarFile.entries;
 		var layoutAsTarFileEntry = tarFileEntries[0];
@@ -478,9 +479,9 @@ function Document
 		);
 
 		return returnValue;
-	};
+	}
 
-	Document.prototype.toTarFile = function()
+	toTarFile()
 	{
 		var contentFiles = this.contentFiles;
 
@@ -518,9 +519,9 @@ function Document
 		);
 
 		return documentAsTarFile;
-	};
+	}
 
-	Document.prototype.toTarFile_Png = function()
+	toTarFile_Png()
 	{
 		this.initialize();
 		this.update();
@@ -543,5 +544,5 @@ function Document
 		}
 
 		return returnValue;
-	};
+	}
 }

@@ -1,11 +1,13 @@
 
-function FontNameAndHeight(fontName, heightInPixels)
+class FontNameAndHeight
 {
-	this.fontName = fontName;
-	this.heightInPixels = heightInPixels;
-}
-{
-	FontNameAndHeight.fromDeserializedObject = function(fontNameAndHeightAsObject)
+	constructor(fontName, heightInPixels)
+	{
+		this.fontName = fontName;
+		this.heightInPixels = heightInPixels;
+	}
+
+	static fromDeserializedObject(fontNameAndHeightAsObject)
 	{
 		return new FontNameAndHeight
 		(
@@ -14,7 +16,7 @@ function FontNameAndHeight(fontName, heightInPixels)
 		);
 	};
 
-	FontNameAndHeight.prototype.toString = function()
+	toString()
 	{
 		return this.heightInPixels + "px " + this.fontName;
 	};

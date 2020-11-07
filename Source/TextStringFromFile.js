@@ -1,11 +1,14 @@
-function TextStringFromFile(name, sourcePath, text)
+
+class TextStringFromFile
 {
-	this.name = name;
-	this.sourcePath = sourcePath;
-	this.text = text;
-}
-{
-	TextStringFromFile.fromDeserializedObject = function(textStringAsObject)
+	constructor(name, sourcePath, text)
+	{
+		this.name = name;
+		this.sourcePath = sourcePath;
+		this.text = text;
+	}
+
+	static fromDeserializedObject(textStringAsObject)
 	{
 		return new TextStringFromFile
 		(
@@ -13,15 +16,15 @@ function TextStringFromFile(name, sourcePath, text)
 			textStringAsObject.sourcePath,
 			textStringAsObject.text
 		);
-	};
+	}
 
-	TextStringFromFile.prototype.load = function()
+	load()
 	{
 		// todo
-	};
+	}
 
-	TextStringFromFile.prototype.unload = function()
+	unload()
 	{
 		delete this.text;
-	};
+	}
 }

@@ -1,19 +1,24 @@
 
-function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNameAndHeight, colorBack, colorBorder)
+class ZoneDefn
 {
-	this.name = name;
-	this.pos = pos;
-	this.size = size;
-	this.margin = margin;
-	this.zoneNameNext = zoneNameNext;
-	this.pageOffsetNext = pageOffsetNext;
-	this.fontNameAndHeight = fontNameAndHeight;
-	this.colorBack = colorBack;
-	this.colorBorder = colorBorder;
-}
+	constructor
+	(
+		name, pos, size, margin, pageOffsetNext, zoneNameNext,
+		fontNameAndHeight, colorBack, colorBorder
+	)
+	{
+		this.name = name;
+		this.pos = pos;
+		this.size = size;
+		this.margin = margin;
+		this.zoneNameNext = zoneNameNext;
+		this.pageOffsetNext = pageOffsetNext;
+		this.fontNameAndHeight = fontNameAndHeight;
+		this.colorBack = colorBack;
+		this.colorBorder = colorBorder;
+	}
 
-{
-	ZoneDefn.prototype.sizeMinusMargin = function()
+	sizeMinusMargin()
 	{
 		if (this._sizeMinusMargin == null)
 		{
@@ -26,17 +31,16 @@ function ZoneDefn(name, pos, size, margin, pageOffsetNext, zoneNameNext, fontNam
 			);
 		}
 		return this._sizeMinusMargin;
+	}
 
-	};
-
-	ZoneDefn.prototype.unload = function()
+	unload()
 	{
 		delete this._sizeMinusMargin;
-	};
+	}
 
 	// serializable
 
-	ZoneDefn.fromDeserializedObject = function(zoneDefnAsObject)
+	static fromDeserializedObject(zoneDefnAsObject)
 	{
 		var returnValue = new ZoneDefn
 		(

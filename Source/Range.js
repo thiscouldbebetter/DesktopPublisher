@@ -1,6 +1,9 @@
 
-function Range(min, max)
+class Range
 {
-	this.min = min || 0;
-	this.max = max || Number.POSITIVE_INFINITY;
+	constructor(min, max)
+	{
+		this.min = min || 0;
+		this.max = max || Number.POSITIVE_INFINITY;
+	}
 }

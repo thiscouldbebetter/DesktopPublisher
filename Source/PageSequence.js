@@ -1,15 +1,17 @@
 
-function PageSequence(pageDefnNames)
+class PageSequence
 {
-	this.pageDefnNames = pageDefnNames;
-}
-{
-	PageSequence.fromDeserializedObject = function(pageSequenceAsObject)
+	constructor(pageDefnNames)
+	{
+		this.pageDefnNames = pageDefnNames;
+	}
+
+	static fromDeserializedObject(pageSequenceAsObject)
 	{
 		return new PageSequence(pageSequenceAsObject.pageDefnNames);
-	};
+	}
 
-	PageSequence.prototype.draw = function(document, pageRange)
+	draw(document, pageRange)
 	{
 		var pagesToDraw = this.pages.filter
 		(
@@ -18,7 +20,7 @@ function PageSequence(pageDefnNames)
 		pagesToDraw.forEach(x => x.draw(document));
 	}
 
-	PageSequence.prototype.pageAdd = function(document)
+	pageAdd(document)
 	{
 		this.pageDefnNameIndex = this.pageDefnNameIndex || 0;
 		var pageDefnName = this.pageDefnNames[this.pageDefnNameIndex];
@@ -34,15 +36,15 @@ function PageSequence(pageDefnNames)
 		page.zonesBuild(document);
 		this.pages.push(page);
 		return page;
-	};
+	}
 
-	PageSequence.prototype.unload = function()
+	unload()
 	{
 		this.pages.forEach(x => x.unload());
 		delete this.pages;
-	};
+	}
 
-	PageSequence.prototype.update = function(document)
+	update(document)
 	{
 		this.pages = [];
 
@@ -55,6 +57,6 @@ function PageSequence(pageDefnNames)
 
 			hasAnyContentNotYetBeenAssignedToPages = false; // todo
 		}
-	};
+	}
 
 }

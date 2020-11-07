@@ -1,15 +1,16 @@
 
 // classes
 
-function ContentAssignment(contentBlockName, pageIndex, zoneDefnName)
+class ContentAssignment
 {
-	this.contentBlockName = contentBlockName;
-	this.pageIndex = pageIndex;
-	this.zoneDefnName = zoneDefnName;
-}
+	constructor(contentBlockName, pageIndex, zoneDefnName)
+	{
+		this.contentBlockName = contentBlockName;
+		this.pageIndex = pageIndex;
+		this.zoneDefnName = zoneDefnName;
+	}
 
-{
-	ContentAssignment.fromDeserializedObject = function(contentAssignmentAsObject)
+	static fromDeserializedObject(contentAssignmentAsObject)
 	{
 		return new ContentAssignment
 		(

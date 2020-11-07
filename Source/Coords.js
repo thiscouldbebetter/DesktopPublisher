@@ -1,24 +1,25 @@
 
-function Coords(x, y)
+class Coords
 {
-	this.x = x;
-	this.y = y;
-}
+	constructor(x, y)
+	{
+		this.x = x;
+		this.y = y;
+	}
 
-{
-	Coords.prototype.clone = function()
+	clone()
 	{
 		return new Coords(this.x, this.y);
 	}
 
-	Coords.prototype.overwriteWithXY = function(x, y)
+	overwriteWithXY(x, y)
 	{
 		this.x = x;
 		this.y = y;
 		return this;
 	}
 
-	Coords.prototype.subtract = function(other)
+	subtract(other)
 	{
 		this.x -= other.x;
 		this.y -= other.y;
@@ -27,7 +28,7 @@ function Coords(x, y)
 
 	// serializable
 
-	Coords.fromDeserializedObject = function(coordsAsObject)
+	static fromDeserializedObject(coordsAsObject)
 	{
 		return new Coords(coordsAsObject.x, coordsAsObject.y);
 	}

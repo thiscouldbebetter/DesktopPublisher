@@ -1,8 +1,10 @@
 
-function Session(document)
+class Session
 {
-	this.document = document;
-}
-{
-	Session.Instance = new Session();
+	constructor(document)
+	{
+		this.document = document;
+	}
+
+	static Instance = new Session();
 }

@@ -1,27 +1,32 @@
 
-function ContentType(name, contentFromData)
+class ContentType
 {
-	this.name = name;
-	this.contentFromData = contentFromData;
-}
-{
-	ContentType.Instances = function()
+	constructor(name, contentFromData)
+	{
+		this.name = name;
+		this.contentFromData = contentFromData;
+	}
+
+	static Instances = function()
 	{
 		if (ContentType._instances == null)
 		{
 			ContentType._instances = new ContentType_Instances();
 		}
 		return ContentType._instances;
-	};
+	}
+}
 
-	function ContentType_Instances()
+class ContentType_Instances
+{
+	constructor()
 	{
 		this.NumberSequence = new ContentType
 		(
 			"NumberSequence",
 			(document, data) => 
 			{
-				returnValue = "";
+				var returnValue = "";
 				var numberRangeAndStartOffsetAsString = data;
 				var numberRangeAndStartOffsetAsStrings =
 					numberRangeAndStartOffsetAsString.split(";");

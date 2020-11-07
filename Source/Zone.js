@@ -1,11 +1,12 @@
 
-function Zone(defnName)
+class Zone
 {
-	this.defnName = defnName;
-}
+	constructor(defnName)
+	{
+		this.defnName = defnName;
+	}
 
-{
-	Zone.prototype.content = function(document)
+	content(document)
 	{
 		if (this._content == null)
 		{
@@ -17,30 +18,30 @@ function Zone(defnName)
 		}
 
 		return this._content;
-	};
+	}
 
-	Zone.prototype.defn = function(document, page)
+	defn(document, page)
 	{
 		var pageDefn = page.defn(document);
 		var returnValue = pageDefn.zoneDefns[this.defnName];
 		return returnValue;
-	};
+	}
 
-	Zone.prototype.update = function(document, pageSequence, page)
+	update(document, pageSequence, page)
 	{
 		var zoneLayout = new ZoneLayout(document, pageSequence, page, this);
 		zoneLayout.layOut();
-	};
+	}
 
-	Zone.prototype.unload = function()
+	unload()
 	{
 		delete this._content;
 		delete this.contentAsLines;
-	};
+	}
 
 	// drawable
 
-	Zone.prototype.draw = function(document, page)
+	draw(document, page)
 	{
 		var zone = this;
 		var zoneDefn = zone.defn(document, page);
@@ -118,11 +119,11 @@ function Zone(defnName)
 					+ widthOfWhitespaceBetweenCharacters;
 			}
 		}
-	};
+	}
 
 	// serializable
 
-	Zone.fromDeserializedObject = function(zoneAsObject)
+	static fromDeserializedObject(zoneAsObject)
 	{
 		var returnValue = new Zone
 		(
@@ -130,5 +131,5 @@ function Zone(defnName)
 		);
 
 		return returnValue;
-	};
+	}
 }

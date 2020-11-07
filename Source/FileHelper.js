@@ -1,11 +1,7 @@
 
-function FileHelper()
+class FileHelper
 {
-	// static class
-}
-
-{
-	FileHelper.loadFileAsBytes = function(fileToLoad, callback)
+	static loadFileAsBytes(fileToLoad, callback)
 	{
 		var fileReader = new FileReader();
 		fileReader.onload = (fileLoadedEvent) =>
@@ -17,20 +13,20 @@ function FileHelper()
 			callback(fileToLoad.name, fileLoadedAsBytes);
 		}
 		fileReader.readAsBinaryString(fileToLoad);
-	};
+	}
 
-	FileHelper.loadFileAsText = function(fileToLoad, callback)
+	static loadFileAsText(fileToLoad, callback)
 	{
 		var fileReader = new FileReader();
-		fileReader.onload = function(fileLoadedEvent) 
+		fileReader.onload(fileLoadedEvent) 
 		{
 			var textFromFileLoaded = fileLoadedEvent.target.result;
 			callback(fileToLoad.name, textFromFileLoaded);
 		};
 		fileReader.readAsText(fileToLoad);
-	};
+	}
  
-	FileHelper.saveBytesAsFile = function(bytesToWrite, fileNameToSaveAs)
+	static saveBytesAsFile(bytesToWrite, fileNameToSaveAs)
 	{
 		var bytesToWriteAsArrayBuffer = new ArrayBuffer(bytesToWrite.length);
 		var bytesToWriteAsUIntArray = new Uint8Array(bytesToWriteAsArrayBuffer);
@@ -49,9 +45,9 @@ function FileHelper()
 		downloadLink.download = fileNameToSaveAs;
 		downloadLink.href = window.URL.createObjectURL(bytesToWriteAsBlob);
 		downloadLink.click();
-	};
+	}
 
-	FileHelper.saveTextAsFile = function(textToSave, fileNameToSaveAs)
+	static saveTextAsFile(textToSave, fileNameToSaveAs)
 	{
 		var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
 		var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
@@ -60,5 +56,5 @@ function FileHelper()
 		downloadLink.download = fileNameToSaveAs;
 		downloadLink.href = textToSaveAsURL;
 		downloadLink.click();
-	};
+	}
 }

@@ -1,14 +1,15 @@
 
-function Display(sizeInPixels, renderToScreen)
+class Display
 {
-	this.sizeInPixels = sizeInPixels;
-	this.renderToScreen = (renderToScreen == null ? true : renderToScreen);
+	constructor(sizeInPixels, renderToScreen)
+	{
+		this.sizeInPixels = sizeInPixels;
+		this.renderToScreen = (renderToScreen == null ? true : renderToScreen);
 
-	this.drawPos = new Coords();
-}
+		this.drawPos = new Coords();
+	}
 
-{
-	Display.prototype.clear = function()
+	clear()
 	{
 		this.drawRectangle
 		(
@@ -16,13 +17,13 @@ function Display(sizeInPixels, renderToScreen)
 		);
 	}
 
-	Display.prototype.fontSet = function(fontNameAndHeight)
+	fontSet(fontNameAndHeight)
 	{
 		this.fontNameAndHeight = fontNameAndHeight;
 		this.graphics.font = this.fontNameAndHeight.toString();
 	}
 
-	Display.prototype.initialize = function()
+	initialize()
 	{
 		this.canvas = document.createElement("canvas");
 		this.canvas.style = "border:1px solid";
@@ -37,7 +38,7 @@ function Display(sizeInPixels, renderToScreen)
 		}
 	}
 
-	Display.prototype.toImageBytes = function()
+	toImageBytes()
 	{
 		var imageAsPNGDataURL = this.canvas.toDataURL("image/png");
 
@@ -53,14 +54,14 @@ function Display(sizeInPixels, renderToScreen)
 		return imageAsBytes;
 	}
 
-	Display.prototype.widthOfText = function(textToMeasure)
+	widthOfText(textToMeasure)
 	{
 		return this.graphics.measureText(textToMeasure).width;
 	}
 
 	// primitives
 
-	Display.prototype.drawRectangle = function(pos, size, colorFill, colorBorder)
+	drawRectangle(pos, size, colorFill, colorBorder)
 	{
 		if (colorFill != null)
 		{
@@ -83,7 +84,7 @@ function Display(sizeInPixels, renderToScreen)
 		}
 	}
 
-	Display.prototype.drawText = function(text, pos)
+	drawText(text, pos)
 	{
 		this.graphics.fillStyle = "Gray";
 		this.graphics.fillText

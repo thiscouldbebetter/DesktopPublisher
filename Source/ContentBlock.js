@@ -1,13 +1,14 @@
 
-function ContentBlock(name, typeName, data)
+class ContentBlock
 {
-	this.name = name;
-	this.typeName = typeName;
-	this.data = data;
-}
+	constructor(name, typeName, data)
+	{
+		this.name = name;
+		this.typeName = typeName;
+		this.data = data;
+	}
 
-{
-	ContentBlock.fromDeserializedObject = function(contentBlockAsObject)
+	static fromDeserializedObject(contentBlockAsObject)
 	{
 		return new ContentBlock
 		(
@@ -15,15 +16,15 @@ function ContentBlock(name, typeName, data)
 			contentBlockAsObject.typeName,
 			contentBlockAsObject.data
 		);
-	};
+	}
 
-	ContentBlock.prototype.content = function(document)
+	content(document)
 	{
 		return this.type().contentFromData(document, this.data);
-	};
+	}
 
-	ContentBlock.prototype.type = function()
+	type()
 	{
 		return ContentType.Instances()[this.typeName];
-	};
+	}
 }

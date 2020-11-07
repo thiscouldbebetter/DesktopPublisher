@@ -1,23 +1,24 @@
 
-function Page(pageIndex, defnName)
+class Page
 {
-	this.pageIndex = pageIndex;
-	this.defnName = defnName;
-}
+	constructor(pageIndex, defnName)
+	{
+		this.pageIndex = pageIndex;
+		this.defnName = defnName;
+	}
 
-{
-	Page.prototype.defn = function(document)
+	defn(document)
 	{
 		return document.pageDefns[this.defnName];
-	};
+	}
 
-	Page.prototype.unload = function()
+	unload()
 	{
 		this.zones.forEach(x => x.unload());
 		delete this.zones;
-	};
+	}
 
-	Page.prototype.update = function(document, pageSequence)
+	update(document, pageSequence)
 	{
 		this.zonesBuild(document);
 
@@ -48,9 +49,9 @@ function Page(pageIndex, defnName)
 			var zone = this.zones[i];
 			zone.update(document, pageSequence, this);
 		}
-	};
+	}
 
-	Page.prototype.zonesBuild = function(document)
+	zonesBuild(document)
 	{
 		var defn = this.defn(document);
 
@@ -59,11 +60,11 @@ function Page(pageIndex, defnName)
 			this.zones = defn.zoneDefns.map(x => new Zone(x.name));
 			this.zones.addLookups("defnName");
 		}
-	};
+	}
 
 	// drawable
 
-	Page.prototype.draw = function(document)
+	draw(document)
 	{
 		var displaySizeInPixels = document.pageSizeInPixels;
 		this.display = new Display(displaySizeInPixels);
@@ -72,11 +73,11 @@ function Page(pageIndex, defnName)
 		this.display.clear();
 
 		this.zones.forEach(x => x.draw(document, this));
-	};
+	}
 
 	// serializable
 
-	Page.fromDeserializedObject = function(pageAsObject)
+	static fromDeserializedObject(pageAsObject)
 	{
 		var returnValue = new Page
 		(
@@ -85,6 +86,6 @@ function Page(pageIndex, defnName)
 		);
 
 		return returnValue;
-	};
+	}
 
 }

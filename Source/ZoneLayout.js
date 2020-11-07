@@ -1,12 +1,14 @@
-function ZoneLayout(document, pageSequence, page, zone)
+class ZoneLayout
 {
-	this.document = document;
-	this.pageSequence = pageSequence;
-	this.page = page;
-	this.zone = zone;
-}
-{
-	ZoneLayout.prototype.layOut = function()
+	constructor(document, pageSequence, page, zone)
+	{
+		this.document = document;
+		this.pageSequence = pageSequence;
+		this.page = page;
+		this.zone = zone;
+	}
+
+	layOut()
 	{
 		this.zoneDefn = this.zone.defn(this.document, this.page);
 		this.zoneSize = this.zoneDefn.sizeMinusMargin();
@@ -61,9 +63,9 @@ function ZoneLayout(document, pageSequence, page, zone)
 		this.linesInZone.push(this.lineCurrent);
 
 		this.zone.contentAsLines = this.linesInZone;
-	};
+	}
 
-	ZoneLayout.prototype.layOut_ContentChar_1 = function()
+	layOut_ContentChar_1()
 	{
 		var shouldContinue = false;
 
@@ -170,9 +172,9 @@ function ZoneLayout(document, pageSequence, page, zone)
 			this.lineCurrentWidthSoFar += widthOfContentChar;
 		}
 		return shouldContinue;
-	};
+	}
 	
-	ZoneLayout.prototype.layOut_ContentChar_2 = function()
+	layOut_ContentChar_2()
 	{
 		var shouldBreak = false;
 		if (this.lineCurrentWidthSoFar >= this.zoneSize.x)
@@ -224,14 +226,14 @@ function ZoneLayout(document, pageSequence, page, zone)
 		}
 
 		return shouldBreak;
-	};
+	}
 
-	ZoneLayout.prototype.lineCenter = function(lineToCenter)
+	lineCenter(lineToCenter)
 	{
 		while (this.display.widthOfText(lineToCenter) < this.zoneSize.x)
 		{
 			lineToCenter = " " + lineToCenter + " ";
 		}
 		return lineToCenter;
-	};
+	}
 }

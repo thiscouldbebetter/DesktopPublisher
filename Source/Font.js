@@ -1,11 +1,13 @@
 
-function Font(name, sourcePath)
+class Font
 {
-	this.name = name;
-	this.sourcePath = sourcePath;
-}
-{
-	Font.prototype.load = function(callback)
+	constructor(name, sourcePath)
+	{
+		this.name = name;
+		this.sourcePath = sourcePath;
+	}
+
+	load(callback)
 	{
 		var fontFace = new FontFace
 		(
@@ -26,9 +28,9 @@ function Font(name, sourcePath)
 		);
 		document.fonts.add(fontFace);
 		fontFace.load();
-	};
+	}
 
-	Font.prototype.unload = function()
+	unload()
 	{
 		delete this.isLoaded;
 	}

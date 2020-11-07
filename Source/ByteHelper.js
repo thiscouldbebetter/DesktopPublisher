@@ -1,15 +1,7 @@
 
-// libraries
-
-// export
-
-function ByteHelper()
+class ByteHelper
 {
-	// static class
-}
-
-{
-	ByteHelper.stringUTF8ToBytes = function(stringToConvert)
+	static stringUTF8ToBytes (stringToConvert)
 	{
 		var bytes = [];
 
@@ -19,10 +11,10 @@ function ByteHelper()
 			bytes.push(byte);
 		} 
 
-		return bytes;	
+		return bytes;
 	}
 
-	ByteHelper.bytesToStringUTF8 = function(bytesToConvert)
+	static bytesToStringUTF8 (bytesToConvert)
 	{
 		var returnValue = "";
 
