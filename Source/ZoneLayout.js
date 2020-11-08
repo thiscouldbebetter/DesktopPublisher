@@ -46,10 +46,10 @@ class ZoneLayout
 		{
 			this.contentChar = this.content[this.contentCharIndex];
 
-			var isNewZoneNeeded = this.layOut_ContentChar_1_Handle();
-			if (isNewZoneNeeded)
+			var mightNewZoneBeNeeded = this.layOut_ContentChar_1_Handle();
+			if (mightNewZoneBeNeeded)
 			{
-				var shouldBreak = this.layOut_ContentChar_2_ZoneNew();
+				var shouldBreak = this.layOut_ContentChar_2_ZoneNewIfNeeded();
 				if (shouldBreak)
 				{
 					break;
@@ -65,7 +65,7 @@ class ZoneLayout
 
 	layOut_ContentChar_1_Handle()
 	{
-		var isNewZoneNeeded = true;
+		var mightNewZoneBeNeeded = true;
 
 		if (this.contentChar == " ")
 		{
@@ -84,82 +84,7 @@ class ZoneLayout
 		}
 		else if (this.contentChar == "<") // control tag
 		{
-			var indexOfTagCloseChar = this.content.indexOf(">", this.contentCharIndex + 1);
-			var controlCode = this.content.substring(this.contentCharIndex + 1, indexOfTagCloseChar);
-
-			if (controlCode == ContentControlCodes.Blockquote)
-			{
-				this.isInBlockQuote = true;
-				this.zoneSize.x -= this.zoneDefn.margin.x;
-			}
-			else if (controlCode == ContentControlCodes.BlockquoteClose)
-			{
-				this.isInBlockQuote = false;
-				this.zoneSize.x += this.zoneDefn.margin.x;
-			}
-			else if (controlCode == ContentControlCodes.Center)
-			{
-				this.isTextCenteredHorizontally = true;
-			}
-			else if (controlCode == ContentControlCodes.CenterVertical)
-			{
-				this.isTextCenteredVertically = true;
-			}
-			else if (controlCode == ContentControlCodes.Image)
-			{
-				// todo
-				var image = new Image("../Content/Images/Test.png");
-				image.load();
-				this.imagesAwaitingLayout.push(image);
-			}
-			else if (controlCode == ContentControlCodes.Left)
-			{
-				this.isTextCenteredHorizontally = false;
-			}
-			else if (controlCode == ContentControlCodes.PadTop)
-			{
-				this.isTextPaddedFromTop = true;
-			}
-			else if (controlCode == ContentControlCodes.PageBreak) // formfeed
-			{
-				this.lineCurrent += this.wordCurrent + "\n";
-				if (this.isTextCenteredHorizontally)
-				{
-					this.lineCurrent = this.lineCenter(this.lineCurrent);
-				}
-				if (this.isTextPaddedFromTop)
-				{
-					this.isTextPaddedFromTop = false;
-					this.zoneCurrentHeightSoFar += this.fontSizeY;
-					while (zoneCurrentHeightSoFar < this.zoneSize.y)
-					{
-						this.linesInZone.splice(0, 0, "\n");
-						this.zoneCurrentHeightSoFar += this.fontSizeY;
-					}
-				}
-				else if (this.isTextCenteredVertically)
-				{
-					this.isTextCenteredVertically = false;
-					this.zoneCurrentHeightSoFar += this.fontSizeY;
-					while (this.zoneCurrentHeightSoFar < this.zoneSize.y)
-					{
-						this.linesInZone.splice(0, 0, "\n");
-						this.linesInZone.push("\n");
-						this.zoneCurrentHeightSoFar += this.fontSizeY * 2;
-					}
-				}
-				this.wordCurrent = "";
-				this.lineCurrentWidthSoFar = this.zoneSize.x;
-				this.zoneCurrentHeightSoFar = this.zoneSize.y;
-			}
-			else
-			{
-				throw "Unrecognized control code: " + controlCode;
-			}
-
-			this.contentCharIndex += controlCode.length + 1;
-			//continue; // hack
-			isNewZoneNeeded = false;
+			mightNewZoneBeNeeded = this.layOut_ContentChar_1_Handle_ControlCodes();
 		}
 		else
 		{
@@ -169,10 +94,100 @@ class ZoneLayout
 			this.lineCurrentWidthSoFar += widthOfContentChar;
 		}
 
-		return isNewZoneNeeded;
+		return mightNewZoneBeNeeded;
 	}
-	
-	layOut_ContentChar_2_ZoneNew()
+
+	layOut_ContentChar_1_Handle_ControlCodes()
+	{
+		var mightNewZoneBeNeeded = false;
+
+		var indexOfTagCloseChar = this.content.indexOf(">", this.contentCharIndex + 1);
+		var controlCode = this.content.substring(this.contentCharIndex + 1, indexOfTagCloseChar);
+
+		if (controlCode == ContentControlCodes.Blockquote)
+		{
+			this.isInBlockQuote = true;
+			this.zoneSize.x -= this.zoneDefn.margin.x;
+		}
+		else if (controlCode == ContentControlCodes.BlockquoteClose)
+		{
+			this.isInBlockQuote = false;
+			this.zoneSize.x += this.zoneDefn.margin.x;
+		}
+		else if (controlCode == ContentControlCodes.Center)
+		{
+			this.isTextCenteredHorizontally = true;
+		}
+		else if (controlCode == ContentControlCodes.CenterVertical)
+		{
+			this.isTextCenteredVertically = true;
+		}
+		else if (controlCode == ContentControlCodes.Image)
+		{
+			// todo
+			var image = new Image("../Content/Images/Test.png");
+			image.load();
+			this.imagesAwaitingLayout.push(image);
+		}
+		else if (controlCode == ContentControlCodes.Left)
+		{
+			this.isTextCenteredHorizontally = false;
+		}
+		else if (controlCode == ContentControlCodes.LessThan)
+		{
+			this.wordCurrent += "<";
+
+			var widthOfContentChar = this.display.widthOfText(this.contentChar);
+			this.lineCurrentWidthSoFar += widthOfContentChar;
+		}
+		else if (controlCode == ContentControlCodes.PadTop)
+		{
+			this.isTextPaddedFromTop = true;
+		}
+		else if (controlCode == ContentControlCodes.PageBreak) // formfeed
+		{
+			this.lineCurrent += this.wordCurrent + "\n";
+			if (this.isTextCenteredHorizontally)
+			{
+				this.lineCurrent = this.lineCenter(this.lineCurrent);
+			}
+			if (this.isTextPaddedFromTop)
+			{
+				this.isTextPaddedFromTop = false;
+				this.zoneCurrentHeightSoFar += this.fontSizeY;
+				while (this.zoneCurrentHeightSoFar < this.zoneSize.y)
+				{
+					this.linesInZone.splice(0, 0, "\n");
+					this.zoneCurrentHeightSoFar += this.fontSizeY;
+				}
+			}
+			else if (this.isTextCenteredVertically)
+			{
+				this.isTextCenteredVertically = false;
+				this.zoneCurrentHeightSoFar += this.fontSizeY;
+				while (this.zoneCurrentHeightSoFar < this.zoneSize.y)
+				{
+					this.linesInZone.splice(0, 0, "\n");
+					this.linesInZone.push("\n");
+					this.zoneCurrentHeightSoFar += this.fontSizeY * 2;
+				}
+			}
+			this.wordCurrent = "";
+			this.lineCurrentWidthSoFar = this.zoneSize.x;
+			this.zoneCurrentHeightSoFar = this.zoneSize.y;
+			mightNewZoneBeNeeded = true;
+		}
+		else
+		{
+			throw "Unrecognized control code: " + controlCode;
+		}
+
+		this.contentCharIndex += controlCode.length + 1;
+
+		return mightNewZoneBeNeeded;
+	}
+
+	layOut_ContentChar_2_ZoneNewIfNeeded()
 	{
 		var shouldBreak = false;
 
@@ -250,6 +265,7 @@ class ContentControlCodes
 	static CenterVertical = "centerVertical";
 	static Image = "image";
 	static Left = "left";
+	static LessThan = "lessThan";
 	static PadTop = "padTop";
 	static PageBreak = "pageBreak";
 }

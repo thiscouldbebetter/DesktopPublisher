@@ -144,7 +144,7 @@ class Document
 				new TextStringFromFile
 				(
 					"Homer-Odyssey,_The.txt",
-					"Content/Homer-Odyssey,_The.txt",
+					"Content/Homer-Odyssey,_The/Homer-Odyssey,_The.txt",
 					textOdyssey
 				)
 			],
