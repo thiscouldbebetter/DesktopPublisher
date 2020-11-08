@@ -74,7 +74,23 @@ class Zone
 
 			var widthOfWhitespaceBetweenCharacters;
 
-			if (contentLine.indexOf("\n") >= 0)
+			if (contentLine.startsWith("<"))
+			{
+				if (contentLine.startsWith("<image"))
+				{
+					var image = Image.fromControlTag(contentLine);
+					image.load();
+
+					drawPos.overwriteWithXY
+					(
+						zonePos.x + zoneMargin.x,
+						zonePos.y + zoneMargin.y
+					);
+
+					display.drawImage(image, drawPos, image.size);
+				}
+			}
+			else if (contentLine.indexOf("\n") >= 0)
 			{
 				widthOfWhitespaceBetweenCharacters = 0;
 			}

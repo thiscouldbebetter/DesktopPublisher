@@ -41,6 +41,7 @@ class Document
 			+ "THE GODS IN COUNCIL--MINERVA'S VISIT TO ITHACA--THE CHALLENGE FROM"
 			+ " TELEMACHUS TO THE SUITORS.\n"
 			+ "<pageBreak>"
+			+ "<image src='../Content/Images/Test.jpg' size='100,100' />" // hack - test
 			+ "<pageBreak>"
 			+ "Tell me, O Muse, of that ingenious hero who travelled far and wide"
 			+ " after he had sacked the famous town of Troy. Many cities did he visit,"

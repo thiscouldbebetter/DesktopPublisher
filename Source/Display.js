@@ -61,6 +61,26 @@ class Display
 
 	// primitives
 
+	drawImage(image, pos, size)
+	{
+		// hack
+		// Just to see where the image should be, until it's fixed.
+		this.graphics.fillStyle = "Gray";
+		this.graphics.fillRect(pos.x, pos.y, size.x, size.y);
+
+		// fix
+		// Currently this draws nothing,
+		// either due to asynchronous image loading,
+		// or because of browser security features.
+
+		this.graphics.drawImage
+		(
+			image.systemImage,
+			pos.x, pos.y,
+			size.x, size.y
+		);
+	}
+
 	drawRectangle(pos, size, colorFill, colorBorder)
 	{
 		if (colorFill != null)

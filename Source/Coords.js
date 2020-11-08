@@ -26,6 +26,11 @@ class Coords
 		return this;
 	}
 
+	toString()
+	{
+		return this.x + "," + this.y;
+	}
+
 	// serializable
 
 	static fromDeserializedObject(coordsAsObject)

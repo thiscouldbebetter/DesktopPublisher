@@ -55,6 +55,15 @@ class ZoneLayout
 					break;
 				}
 			}
+
+			while (this.imagesAwaitingLayout.length > 0)
+			{
+				var imageToLayOut = this.imagesAwaitingLayout[0];
+				this.imagesAwaitingLayout.splice(0, 1);
+				var imageAsControlCode = imageToLayOut.toControlTag();
+				this.linesInZone.push(imageAsControlCode);
+				this.zoneCurrentHeightSoFar += imageToLayOut.size.y;
+			}
 		}
 
 		this.lineCurrent += this.wordCurrent;
@@ -102,7 +111,13 @@ class ZoneLayout
 		var mightNewZoneBeNeeded = false;
 
 		var indexOfTagCloseChar = this.content.indexOf(">", this.contentCharIndex + 1);
-		var controlCode = this.content.substring(this.contentCharIndex + 1, indexOfTagCloseChar);
+		if (indexOfTagCloseChar == -1)
+		{
+			throw "Unclosed control code!";
+		}
+		var controlTag = this.content.substring(this.contentCharIndex + 1, indexOfTagCloseChar);
+		var controlCodeAndAttributes = controlTag.split(" ");
+		var controlCode = controlCodeAndAttributes[0];
 
 		if (controlCode == ContentControlCodes.Blockquote)
 		{
@@ -124,9 +139,7 @@ class ZoneLayout
 		}
 		else if (controlCode == ContentControlCodes.Image)
 		{
-			// todo
-			var image = new Image("../Content/Images/Test.png");
-			image.load();
+			var image = Image.fromControlTag(controlTag);
 			this.imagesAwaitingLayout.push(image);
 		}
 		else if (controlCode == ContentControlCodes.Left)
@@ -135,7 +148,11 @@ class ZoneLayout
 		}
 		else if (controlCode == ContentControlCodes.LessThan)
 		{
-			this.wordCurrent += "<";
+			// todo
+			// Need to add escape code instead of the literal "<",
+			// but it needs to subsequently be measured as the "<" would be.
+			this.contentChar = "<";
+			this.wordCurrent += this.controlChar;
 
 			var widthOfContentChar = this.display.widthOfText(this.contentChar);
 			this.lineCurrentWidthSoFar += widthOfContentChar;
@@ -182,7 +199,7 @@ class ZoneLayout
 			throw "Unrecognized control code: " + controlCode;
 		}
 
-		this.contentCharIndex += controlCode.length + 1;
+		this.contentCharIndex += controlTag.length + 1;
 
 		return mightNewZoneBeNeeded;
 	}
