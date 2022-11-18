@@ -79,15 +79,20 @@ class Zone
 				if (contentLine.startsWith("<image"))
 				{
 					var image = Image.fromControlTag(contentLine);
-					image.load();
-
-					drawPos.overwriteWithXY
+					image.load
 					(
-						zonePos.x + zoneMargin.x,
-						zonePos.y + zoneMargin.y
+						() =>
+						{
+							drawPos.overwriteWithXY
+							(
+								zonePos.x + zoneMargin.x,
+								zonePos.y + zoneMargin.y
+							);
+
+							display.drawImage(image, drawPos, image.size);
+						}
 					);
 
-					display.drawImage(image, drawPos, image.size);
 				}
 			}
 			else if (contentLine.indexOf("\n") >= 0)

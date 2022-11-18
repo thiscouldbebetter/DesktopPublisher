@@ -7,10 +7,17 @@ class Image
 		this.size = size;
 	}
 
-	load()
+	load(callback)
 	{
 		var d = document;
 		var imgElement = d.createElement("img");
+		imgElement.onload = () =>
+		{
+			if (callback != null)
+			{
+				callback.call();
+			}
+		}
 		imgElement.src = this.sourcePath;
 		this.systemImage = imgElement;
 	}
