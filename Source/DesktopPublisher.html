@@ -12,32 +12,46 @@
 
 <label>Document:</label><br />
 
-<button onclick="buttonLoadDemoDocument_Clicked();">Load Demo Document</button>
-<br />
+<div>
+	<button onclick="UiEventHandler.buttonLoadDemoDocument_Clicked();">Load Demo Document</button>
+</div>
 
-<label>Load Document from .doc.tar:</label>
-<input type="file" onchange="inputDocumentFileToLoad_Changed(this);" />
-<br />
+<div>
+	<label>Load Document from .doc.tar:</label>
+	<input type="file" onchange="UiEventHandler.inputDocumentFileToLoad_Changed(this);" />
+</div>
 
-<button onclick="buttonSaveDocument_Clicked();">Save Document as .doc.tar</button>
-<br />
+<div>
+	<button onclick="UiEventHandler.buttonSaveDocument_Clicked();">Save Document as .doc.tar</button>
+</div>
 
-<label>Name:</label>
-<input id="inputDocumentName"></input>
-<br />
+<div>
+	<label>Name:</label>
+	<input id="inputDocumentName"></input>
+</div>
 
-<label>Content Files:</label>
-<br />
-<label>Upload New:</label>
-<input type="file" onchange="inputContentFileToUpload_Changed(this);" />
-<label>Selected:</label>
-<button onclick="buttonContentFileSelectedUnlink_Clicked();">Unlink</button>
-<br />
-<select id="selectContentFiles" size="4" readonly="true" onchange="selectContentFiles_Changed(this);"></select>
-<br />
+<div>
+	<label>Content Files:</label>
+	
+	<div>
+		<label>Upload New:</label>
+		<input type="file" onchange="UiEventHandler.inputContentFileToUpload_Changed(this);" />
+		<label>Selected:</label>
+		<button onclick="UiEventHandler.buttonContentFileSelectedUnlink_Clicked();">Unlink</button>
+	</div>
+	<select
+		id="selectContentFiles"
+		size="4"
+		readonly="true"
+		onchange="UiEventHandler.selectContentFiles_Changed(this);"
+	></select>
+</div>
 
+<div>
 <label>Document Layout as JSON:</label><br />
 <textarea id="textareaLayoutAsJson" cols="80" rows="16" wrap="off" ></textarea>
+</div>
+
 </div>
 
 <div>
@@ -46,9 +60,9 @@
 	<input id="inputPageFrom" type="number" value="1"></input>
 	<label>To:</label>
 	<input id="inputPageTo" type="number" value="20"></input>
-	<button onclick="buttonDraw_Clicked();">Render as Images</button>
-	<button onclick="buttonClearRenderedImages_Clicked();">Clear Rendered Images</button>
-	<button onclick="buttonExport_Clicked();">Export as .png.tar</button>
+	<button onclick="UiEventHandler.buttonDraw_Clicked();">Render as Images</button>
+	<button onclick="UiEventHandler.buttonClearRenderedImages_Clicked();">Clear Rendered Images</button>
+	<button onclick="UiEventHandler.buttonExport_Clicked();">Export as .png.tar</button>
 </div>
 
 <div id="divOutput" />
@@ -56,172 +70,6 @@
 <!-- ui ends -->
 
 </div>
-
-<script type="text/javascript">
-
-function buttonContentFileSelectedUnlink_Clicked()
-{
-	Session.Instance.document.contentFileSelectedUnlink();
-	controlsPopulate();
-}
-
-function buttonClearRenderedImages_Clicked()
-{
-	var divOutput = document.getElementById("divOutput");
-	divOutput.innerHTML = "";
-}
-
-function buttonDraw_Clicked()
-{
-	var document = Session.Instance.document;
-	if (document == null)
-	{
-		alert("No document!");
-	}
-	else
-	{
-		document.initialize(buttonDraw_Clicked_DocumentInitialized);
-	}
-}
-
-function buttonDraw_Clicked_DocumentInitialized()
-{
-	var d = document;
-	var inputPageFrom = d.getElementById("inputPageFrom");
-	var inputPageTo = d.getElementById("inputPageTo");
-	var pageFrom = parseInt(inputPageFrom.value);
-	var pageTo = parseInt(inputPageTo.value);
-	var pageRange = new Range(pageFrom, pageTo);
-
-	var documentToDraw = Session.Instance.document;
-	documentToDraw.update();
-	documentToDraw.draw(pageRange);
-	documentToDraw.unload();
-}
-
-function buttonExport_Clicked()
-{
-	var document = Session.Instance.document;
-	if (document == null)
-	{
-		alert("No document!");
-	}
-	else
-	{
-		var documentAsTarFile = document.toTarFile_Png();
-		var documentAsBytes = documentAsTarFile.toBytes();
-		FileHelper.saveBytesAsFile(documentAsBytes, documentToExport.name + ".png.tar");
-	}
-}
-
-function buttonLoadDemoDocument_Clicked()
-{
-	var documentNew = Document.demo();
-	Session.Instance.document = documentNew;
-	controlsPopulate();
-}
-
-function buttonSaveDocument_Clicked()
-{
-	var document = Session.Instance.document;
-	if (document == null)
-	{
-		alert("No document!");
-	}
-	else
-	{
-		var documentAsTarFile = document.toTarFile();
-		var documentAsBytes = documentAsTarFile.toBytes();
-		FileHelper.saveBytesAsFile
-		(
-			documentAsBytes, document.name + ".doc.tar"
-		);
-	}
-}
-
-function controlsPopulate()
-{
-	var d = document;
-	var documentToPopulateFrom = Session.Instance.document;
-
-	var inputDocumentName = d.getElementById("inputDocumentName");
-	inputDocumentName.value = documentToPopulateFrom.name;
-
-	var documentToPopulateFromAsJson = documentToPopulateFrom.toStringJson();
-	var textareaLayoutAsJson = d.getElementById("textareaLayoutAsJson");
-	textareaLayoutAsJson.value = documentToPopulateFromAsJson;
-
-	var contentFiles = documentToPopulateFrom.contentFiles;
-	var contentFilesAsSelectOptions = contentFiles.map
-	(
-		x =>
-		{
-			var returnValue = document.createElement("option")
-			returnValue.value = x.name;
-			returnValue.innerHTML = x.name;
-			return returnValue;
-		}
-	);
-	var selectContentFiles = d.getElementById("selectContentFiles");
-	selectContentFiles.innerHTML = "";
-	contentFilesAsSelectOptions.forEach(x => selectContentFiles.appendChild(x));
-}
-
-function inputContentFileToUpload_Changed(inputContentFileToUpload)
-{
-	var contentFileToLoad = inputContentFileToUpload.files[0];
-	if (contentFileToLoad != null)
-	{
-		FileHelper.loadFileAsBytes
-		(
-			contentFileToLoad,
-			contentFileAsBytes =>
-			{
-				var contentFileContentAsString =
-					ByteHelper.bytesToStringUTF8(contentFileAsBytes);
-				var fileAsTextString = new TextStringFromFile
-				(
-					contentFileToLoad.name,
-					contentFileToLoad.name, // sourcePath
-					contentFileContentAsString
-				);
-				Session.Instance.document.contentFileAdd
-				(
-					fileAsTextString
-				);
-				controlsPopulate();
-			}
-		);
-	}
-}
-
-function inputDocumentFileToLoad_Changed(inputDocumentFileToLoad)
-{
-	var fileToLoad = inputDocumentFileToLoad.files[0];
-	if (fileToLoad != null)
-	{
-		FileHelper.loadFileAsBytes
-		(
-			fileToLoad,
-			(fileName, fileAsBytes) =>
-			{
-				var documentAsTarFile = TarFile.fromBytes(fileName, fileAsBytes);
-				var document = Document.fromTarFile(documentAsTarFile);
-				Session.Instance.document = document;
-				controlsPopulate();
-			}
-		);
-	}
-}
-
-function selectContentFiles_Changed(selectContentFiles)
-{
-	var document = Session.Instance.document;
-	var contentFileName = selectContentFiles.value;
-	document.contentFileSelectByName(contentFileName);
-}
-
-</script>
 
 <script type="text/javascript" src="Extensions/ArrayExtensions.js"></script>
 <script type="text/javascript" src="Extensions/StringExtensions.js"></script>
@@ -244,6 +92,7 @@ function selectContentFiles_Changed(selectContentFiles)
 <script type="text/javascript" src="Range.js"></script>
 <script type="text/javascript" src="Session.js"></script>
 <script type="text/javascript" src="TextStringFromFile.js"></script>
+<script type="text/javascript" src="UiEventHandler.js"></script>
 <script type="text/javascript" src="Zone.js"></script>
 <script type="text/javascript" src="ZoneDefn.js"></script>
 <script type="text/javascript" src="ZoneLayout.js"></script>
