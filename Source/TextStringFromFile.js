@@ -27,4 +27,12 @@ class TextStringFromFile
 	{
 		delete this.text;
 	}
+
+	// Serializable.
+
+	toBytes()
+	{
+		var textAsBytes = ByteHelper.stringUTF8ToBytes(this.text);
+		return textAsBytes;
+	}
 }

@@ -20,6 +20,16 @@ class Zone
 		return this._content;
 	}
 
+	contentAsLines()
+	{
+		return this._contentAsLines;
+	}
+
+	contentAsLinesSet(value)
+	{
+		this._contentAsLines = value;
+	}
+
 	defn(document, page)
 	{
 		var pageDefn = page.defn(document);
@@ -36,7 +46,7 @@ class Zone
 	unload()
 	{
 		delete this._content;
-		delete this.contentAsLines;
+		delete this._contentAsLines;
 	}
 
 	// drawable
@@ -56,7 +66,7 @@ class Zone
 
 		display.drawRectangle(zonePos, zoneSize, zoneDefn.colorBack, zoneDefn.colorBorder);
 
-		var contentAsLines = zone.contentAsLines;
+		var contentAsLines = zone.contentAsLines();
 
 		if (contentAsLines == null)
 		{

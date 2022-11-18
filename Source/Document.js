@@ -1,3 +1,7 @@
+var tfe = ThisCouldBeBetter.TarFileExplorer;
+var TarFile = tfe.TarFile;
+var TarFileEntry = tfe.TarFileEntry;
+var TarFileEntryHeader = tfe.TarFileEntryHeader;
 
 class Document
 {
@@ -21,6 +25,31 @@ class Document
 		this.contentBlocks = contentBlocks.addLookups("name");
 		this.pageSequences = pageSequences;
 		this.contentAssignments = contentAssignments;
+	}
+
+	static blank()
+	{
+		var font = new FontNameAndHeight("Font", 10);
+
+		return new Document
+		(
+			"[untitled]", // name
+			new Coords(255, 330), // pageSizeInPixels
+			// fonts
+			[
+				new Font("Font", "../Content/Fonts/Font.ttf")
+			],
+			// pageDefns
+			[],
+			// contentFiles
+			[],
+			// contentBlocks
+			[],
+			// pages
+			[],
+			// contentAssignments
+			[]
+		);
 	}
 
 	static demo()
@@ -490,12 +519,13 @@ class Document
 		(
 			x =>
 			{
-				var textAsBytes = ByteHelper.stringUTF8ToBytes(x.text);
-				return new TarFileEntry
+				var contentAsBytes = x.toBytes();
+				var contentAsTarFileEntry = new TarFileEntry
 				(
-					TarFileEntryHeader.fileNew("Content/" + x.name, textAsBytes),
-					textAsBytes
-				)
+					TarFileEntryHeader.fileNew("Content/" + x.name, contentAsBytes),
+					contentAsBytes
+				);
+				return contentAsTarFileEntry;
 			}
 		);
 

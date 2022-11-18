@@ -1,5 +1,5 @@
 <html>
-<body>
+<body onload="UiEventHandler.body_Loaded();">
 
 <div id="divMain">
 
@@ -10,19 +10,17 @@
 <label><b>Desktop Publisher</b></label><br />
 <p>Enter a document as JSON, upload any content files, and click the buttons to display the document's pages or to export them as a .tar file.</p>
 
-<label>Document:</label><br />
-
 <div>
-	<button onclick="UiEventHandler.buttonLoadDemoDocument_Clicked();">Load Demo Document</button>
+	<label>Document:</label>
 </div>
 
 <div>
-	<label>Load Document from .doc.tar:</label>
+	<label>Load Document:</label>
+	<button onclick="UiEventHandler.buttonLoadDocumentBlank_Clicked();">Blank</button>
+	<button onclick="UiEventHandler.buttonLoadDocumentDemo_Clicked();">Demo</button>
+	<label>From .doc.tar:</label>
 	<input type="file" onchange="UiEventHandler.inputDocumentFileToLoad_Changed(this);" />
-</div>
-
-<div>
-	<button onclick="UiEventHandler.buttonSaveDocument_Clicked();">Save Document as .doc.tar</button>
+	<button onclick="UiEventHandler.buttonSaveDocument_Clicked();">Save as .doc.tar</button>
 </div>
 
 <div>
@@ -38,6 +36,7 @@
 		<input type="file" onchange="UiEventHandler.inputContentFileToUpload_Changed(this);" />
 		<label>Selected:</label>
 		<button onclick="UiEventHandler.buttonContentFileSelectedUnlink_Clicked();">Unlink</button>
+		<button onclick="UiEventHandler.buttonContentFileSelectedDownload_Clicked();">Download</button>
 	</div>
 	<select
 		id="selectContentFiles"
@@ -71,6 +70,13 @@
 
 </div>
 
+<script type="text/javascript" src="Tar/Source/ByteStream.js"></script>
+<script type="text/javascript" src="Tar/Source/StringHelper.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFile.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFileEntry.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFileEntryHeader.js"></script>
+<script type="text/javascript" src="Tar/Source/TarFileTypeFlag.js"></script>
+
 <script type="text/javascript" src="Extensions/ArrayExtensions.js"></script>
 <script type="text/javascript" src="Extensions/StringExtensions.js"></script>
 
@@ -78,6 +84,7 @@
 <script type="text/javascript" src="ByteStream.js"></script>
 <script type="text/javascript" src="ContentAssignment.js"></script>
 <script type="text/javascript" src="ContentBlock.js"></script>
+<script type="text/javascript" src="ContentFile.js"></script>
 <script type="text/javascript" src="ContentType.js"></script>
 <script type="text/javascript" src="Coords.js"></script>
 <script type="text/javascript" src="Display.js"></script>
@@ -96,11 +103,6 @@
 <script type="text/javascript" src="Zone.js"></script>
 <script type="text/javascript" src="ZoneDefn.js"></script>
 <script type="text/javascript" src="ZoneLayout.js"></script>
-
-<script type="text/javascript" src="Tar/Source/TarFile.js"></script>
-<script type="text/javascript" src="Tar/Source/TarFileEntry.js"></script>
-<script type="text/javascript" src="Tar/Source/TarFileEntryHeader.js"></script>
-<script type="text/javascript" src="Tar/Source/TarFileTypeFlag.js"></script>
 
 </body>
 </html>

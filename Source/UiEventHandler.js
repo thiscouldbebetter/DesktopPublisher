@@ -1,9 +1,8 @@
 
 class UiEventHandler
 {
-	static buttonContentFileSelectedUnlink_Clicked()
+	static body_Loaded()
 	{
-		Session.Instance.document.contentFileSelectedUnlink();
 		UiEventHandler.controlsPopulate();
 	}
 
@@ -11,6 +10,32 @@ class UiEventHandler
 	{
 		var divOutput = document.getElementById("divOutput");
 		divOutput.innerHTML = "";
+	}
+
+	static buttonContentFileSelectedUnlink_Clicked()
+	{
+		Session.Instance.document.contentFileSelectedUnlink();
+		UiEventHandler.controlsPopulate();
+	}
+
+	static buttonContentFileSelectedDownload_Clicked()
+	{
+		var doc = Session.Instance.document;
+		var contentFileSelected = doc.contentFileSelected();
+		if (contentFileSelected != null)
+		{
+			contentFileSelected.toBytes
+			(
+				contentBytes =>
+				{
+					FileHelper.saveBytesAsFile
+					(
+						contentBytes, contentFileSelected.name
+					);
+				}
+			);
+			
+		}
 	}
 
 	static buttonDraw_Clicked()
@@ -56,7 +81,14 @@ class UiEventHandler
 		}
 	}
 
-	static buttonLoadDemoDocument_Clicked()
+	static buttonLoadDocumentBlank_Clicked()
+	{
+		var documentNew = Document.blank();
+		Session.Instance.document = documentNew;
+		UiEventHandler.controlsPopulate();
+	}
+
+	static buttonLoadDocumentDemo_Clicked()
 	{
 		var documentNew = Document.demo();
 		Session.Instance.document = documentNew;
@@ -117,21 +149,22 @@ class UiEventHandler
 			FileHelper.loadFileAsBytes
 			(
 				contentFileToLoad,
-				contentFileAsBytes =>
+				(contentFileLoadedName, contentAsBytes) =>
 				{
-					var contentFileContentAsString =
-						ByteHelper.bytesToStringUTF8(contentFileAsBytes);
-					var fileAsTextString = new TextStringFromFile
+					ContentFile.fromNameAndBytes
 					(
-						contentFileToLoad.name,
-						contentFileToLoad.name, // sourcePath
-						contentFileContentAsString
+						contentFileLoadedName,
+						contentAsBytes,
+						contentFile =>
+						{
+							Session.Instance.document.contentFileAdd
+							(
+								contentFile
+							);
+							UiEventHandler.controlsPopulate();
+						}
 					);
-					Session.Instance.document.contentFileAdd
-					(
-						fileAsTextString
-					);
-					UiEventHandler.controlsPopulate();
+
 				}
 			);
 		}

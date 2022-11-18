@@ -69,7 +69,7 @@ class ZoneLayout
 		this.lineCurrent += this.wordCurrent;
 		this.linesInZone.push(this.lineCurrent);
 
-		this.zone.contentAsLines = this.linesInZone;
+		this.zone.contentAsLinesSet(this.linesInZone);
 	}
 
 	layOut_ContentChar_1_Handle()

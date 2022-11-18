@@ -1,8 +1,9 @@
 
 class Image
 {
-	constructor(sourcePath, size)
+	constructor(name, sourcePath, size)
 	{
+		this.name = name;
 		this.sourcePath = sourcePath;
 		this.size = size;
 	}
@@ -13,13 +14,16 @@ class Image
 		var imgElement = d.createElement("img");
 		imgElement.onload = () =>
 		{
-			if (callback != null)
-			{
-				callback.call();
-			}
+			callback(this);
 		}
-		imgElement.src = this.sourcePath;
 		this.systemImage = imgElement;
+		imgElement.src = this.sourcePath;
+		
+		if (this.sourcePath.startsWith("data:"))
+		{
+			// Data Uris don't need to load asynchronously.
+			callback(this);
+		}
 	}
 
 	// ControlCode.
@@ -44,7 +48,7 @@ class Image
 		var imageSizeY = parseInt(imageSizeXYAsStrings[1]);
 		var imageSize = new Coords(imageSizeX, imageSizeY);
 
-		var image = new Image(imageSourcePath, imageSize);
+		var image = new Image(imageSourcePath, imageSourcePath, imageSize);
 
 		return image;
 	}
@@ -58,5 +62,22 @@ class Image
 			+ this.size.toString()
 			+ "' />";
 		return returnValue;
+	}
+
+	// Serializable.
+
+	toBytes(callback)
+	{
+		this.load
+		(
+			imageLoaded =>
+			{
+				// hack
+				var imageDataAsBase64 = this.sourcePath.split(",")[1];
+				var imageAsBytesAsString = atob(imageDataAsBase64);
+				var imageAsBytes = imageAsBytesAsString.split(",").map(x => parseInt(x))
+				callback(imageAsBytes);
+			}
+		);
 	}
 }
